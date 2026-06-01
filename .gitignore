@@ -1,0 +1,16 @@
+# 仿真结果（数据量大，每次跑都变）
+demo/results/
+
+# Python 缓存
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+
+# 系统文件
+.DS_Store
+Thumbs.db
+demo/server/data/cargo_dataset.jsonl
