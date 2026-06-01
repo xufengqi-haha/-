@@ -32,7 +32,7 @@ class AgentConfig:
 
     # LLM调用控制
     llm_control: dict[str, Any] = field(default_factory=lambda: {
-        "max_calls_per_driver": 100,
+        "max_calls_per_driver": 0,  # 禁用LLM，使用纯规则引擎（恢复141908最优版本行为）
         "temperature": 0.3,
         "max_tokens": 256,
     })
