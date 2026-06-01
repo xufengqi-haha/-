@@ -1,5 +1,7 @@
 # 仿真结果（数据量大，每次跑都变）
 demo/results/
+# 但保留备份目录的README（如果有）
+!demo/results/backup/.gitkeep
 
 # Python 缓存
 __pycache__/
