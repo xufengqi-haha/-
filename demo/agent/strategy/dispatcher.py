@@ -555,7 +555,7 @@ class DecisionDispatcher:
                 tlng = req.get("lng")
                 if tlat and tlng:
                     dist = geo_utils.haversine_km(lat, lng, tlat, tlng)
-                    if dist > 50:
+                    if dist > 30:
                         self._logger.info(
                             "[PRE_DAY] tomorrow day=%d needs %s, %.1fkm away → reposition",
                             day_idx + 1, req.get("region_name", "?"), dist,
@@ -777,11 +777,11 @@ class DecisionDispatcher:
                             continue
                         longest = daily_rest_max_chk.get(day_idx_for_check, 0)
                         deficit = min_h * 60 - longest
-                        if deficit < 120:  # 只有缺口>2h才触发
+                        if deficit < 60:  # 缺口>1h触发
                             continue
                         minutes_left = time_utils.minutes_until_next_day(sim_min)
                         if total_minutes_est + deficit > minutes_left:
-                            penalty *= 1.3
+                            penalty *= 2.5
                         break
             finish_min = sim_min + total_minutes_est
 
