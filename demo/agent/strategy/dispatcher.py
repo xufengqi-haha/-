@@ -224,7 +224,7 @@ class DecisionDispatcher:
                     gap = int(req.get("gap", 0))
                     required = int(req.get("required", 1))
                     gap_ratio_local = gap / max(1, required)
-                    if gap_ratio_local >= 0.5 or gap >= 2:
+                    if gap_ratio_local >= 0.4 or (gap >= 1 and gap_ratio_local >= 0.25):
                         region_constraint = (req.get("region", ""), True)
                         self._logger.info(
                             "[P2] region_constraint active: only accept cargo to %s (gap=%d)",

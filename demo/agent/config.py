@@ -87,7 +87,7 @@ class AgentConfig:
     preference_feedback: dict[str, Any] = field(default_factory=lambda: {
         "enable_cumulative_push": True,
         "urgency_start_day": 10,
-        "region_bonus_max": 0.15,
+        "region_bonus_max": 0.25,
         "off_day_wait_tendency_day": 25,
     })
 

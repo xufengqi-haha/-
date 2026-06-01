@@ -71,10 +71,12 @@ class DriverStateSnapshot:
             gamma = 1.0 + 0.2 * self.consecutive_long_deadhead
         elif rule_type == "day_specific_location":
             gamma = 3.0 if self.month_progress > 0.8 else 1.5
+        elif rule_type == "day_specific_avoid":
+            gamma = 5.0  # 禁入日高倍膨胀，经济账很难通过
         elif rule_type == "forbidden_category":
             gamma = 1.0  # 品类偏好不膨胀
         elif rule_type == "forbidden_region_cargo" or rule_type == "forbidden_region_entry":
-            gamma = 1.0  # 区域禁入不膨胀
+            gamma = 1.0 + 3.0 * self.month_progress  # 禁入区域渐进膨胀，月末γ≈4
 
         # 全局月份紧迫度加成
         if self.month_progress > 0.7:
