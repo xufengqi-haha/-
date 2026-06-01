@@ -413,23 +413,45 @@ class PreferenceChecker:
                     violations.extend(desc)
         return min(total_penalty, 50000.0), violations
 
+    def check_cargo_weighted(
+        self,
+        cargo: dict[str, Any],
+        pickup_distance_km: float,
+        sim_progress_minutes: int,
+        driver_state: Any = None,
+    ) -> tuple[float, list[str]]:
+        """per-rule gamma加权检查。逐规则乘以driver_state.get_gamma()。"""
+        total_penalty = 0.0
+        violations: list[str] = []
+        day_idx = sim_progress_minutes // 1440
+        for rule in self._rules:
+            penalty, desc = self._check_cargo_rule(
+                cargo, pickup_distance_km, day_idx, sim_progress_minutes, rule
+            )
+            if penalty > 0:
+                rule_gamma = driver_state.get_gamma(rule.rule_type, rule.params) if driver_state else 1.0
+                total_penalty += penalty * max(0.4, rule_gamma)
+                if desc:
+                    violations.extend(desc)
+        return min(total_penalty, 50000.0), violations
+
     def hard_forbidden(
-        self, cargo: dict[str, Any], pickup_distance_km: float, sim_progress_minutes: int
+        self, cargo: dict[str, Any], pickup_distance_km: float, sim_progress_minutes: int,
+        driver_state: Any = None,
     ) -> bool:
         """判断货源是否硬违规（必须过滤）。
-        只有平台红线触发硬过滤；司机偏好全部走经济账。
+        平台红线一票否决；per-rule gamma加权后超运价80%也硬过滤。
         """
         day_idx = sim_progress_minutes // 1440
+        price = float(cargo.get("price", 0) or 0)
         for rule in self._rules:
             p, _ = self._check_cargo_rule(cargo, pickup_distance_km, day_idx, sim_progress_minutes, rule)
             if p <= 0:
                 continue
-            # 平台红线：一票否决
             if rule.is_hard:
                 return True
-            # 极端罚分（单次违规罚分超过预期运费）→ 硬过滤
-            price = float(cargo.get("price", 0) or 0)
-            if p > price * 0.8:
+            rule_gamma = driver_state.get_gamma(rule.rule_type, rule.params) if driver_state else 1.0
+            if p * rule_gamma > price * 0.8:
                 return True
         return False
 
@@ -488,6 +510,50 @@ class PreferenceChecker:
                     total_penalty += rule.max_penalty()
 
         return total_penalty, violations
+
+    def check_position_day_avoid(
+        self, lat: float, lng: float, sim_min: int
+    ) -> tuple[bool, float, list[str]]:
+        """检查司机当前位置是否在day_specific_avoid禁区内。
+        坐标匹配，解决城市名（宝安）vs 区域名（深圳）不匹配问题。"""
+        day_idx = sim_min // 1440
+        for rule in self._rules:
+            if rule.rule_type != "day_specific_avoid":
+                continue
+            specified_days = rule.params.get("days", [])
+            if day_idx not in specified_days:
+                continue
+            region = str(rule.params.get("region", ""))
+            coord = REGION_COORDINATES.get(region)
+            if coord is None:
+                continue
+            if haversine_km(lat, lng, coord[0], coord[1]) < 40:
+                return True, rule.max_penalty(), [f"day{day_idx+1}位置在{region}禁区内"]
+        return False, 0.0, []
+
+    def check_cargo_dest_avoid(
+        self, cargo: dict[str, Any], sim_min: int
+    ) -> tuple[float, list[str]]:
+        """检查货源目的地坐标是否在day_specific_avoid禁区内。"""
+        day_idx = sim_min // 1440
+        end = cargo.get("end") or {}
+        dest_lat = float(end.get("lat", 0) or 0)
+        dest_lng = float(end.get("lng", 0) or 0)
+        if not (dest_lat and dest_lng):
+            return 0.0, []
+        for rule in self._rules:
+            if rule.rule_type != "day_specific_avoid":
+                continue
+            specified_days = rule.params.get("days", [])
+            if day_idx not in specified_days:
+                continue
+            region = str(rule.params.get("region", ""))
+            coord = REGION_COORDINATES.get(region)
+            if coord is None:
+                continue
+            if haversine_km(dest_lat, dest_lng, coord[0], coord[1]) < 40:
+                return rule.max_penalty(), [f"day{day_idx+1}目的地{region}禁入"]
+        return 0.0, []
 
     def _check_cargo_rule(
         self,

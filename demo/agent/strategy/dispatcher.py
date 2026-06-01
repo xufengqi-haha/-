@@ -174,6 +174,15 @@ class DecisionDispatcher:
             action = self._make_wait(rest_minutes)
             return self._risk_checker.validate(action, driver_id, sim_min, checker)
 
+        # === Phase 2.5: 跨日预排 — 明天有day_specific_location且距离远 → 提前reposition ===
+        if hour_of_day >= 18:
+            pre_day_action = self._check_pre_day_location(lat, lng, sim_min, day_idx, checker, stats)
+            if pre_day_action is not None:
+                return self._risk_checker.validate(
+                    pre_day_action, driver_id, sim_min, checker,
+                    current_lat=lat, current_lng=lng,
+                )
+
         # === Phase 3: 冷启动保护（per-driver） ===
         driver_queries = self._area_memory.get_driver_query_count(driver_id)
         min_driver_queries = self._config.cold_start.get("min_queries_per_driver", 5)
@@ -238,6 +247,7 @@ class DecisionDispatcher:
             day_constraint=day_constraint,
             region_constraint=region_constraint,
             driver_state=driver_state,
+            daily_stats=daily_stats,
         )
 
         # === Phase 8: 累计偏好反馈 ===
@@ -462,6 +472,27 @@ class DecisionDispatcher:
                 len(boost_reqs), day_idx,
             )
 
+    def _find_safe_location(
+        self, lat: float, lng: float, checker: PreferenceChecker, sim_min: int
+    ) -> tuple[float, float] | None:
+        """找到最近的不在day_specific_avoid禁区内的城市坐标。"""
+        day_idx = sim_min // 1440
+        forbidden_regions: set[str] = set()
+        for rule in checker.rules:
+            if rule.rule_type == "day_specific_avoid":
+                if day_idx in rule.params.get("days", []):
+                    forbidden_regions.add(str(rule.params.get("region", "")))
+        best_coord = None
+        best_dist = float("inf")
+        for name, coord in REGION_COORDINATES.items():
+            if any(fr in name for fr in forbidden_regions):
+                continue
+            d = geo_utils.haversine_km(lat, lng, coord[0], coord[1])
+            if d < best_dist:
+                best_dist = d
+                best_coord = coord
+        return best_coord
+
     def _city_at(self, lat: float, lng: float) -> str:
         best_city = ""
         best_dist = float("inf")
@@ -500,6 +531,38 @@ class DecisionDispatcher:
                         stats["reposition_count"] += 1
                         self._update_avg_score(stats, 0.0)
                         return self._capped_reposition(lat, lng, target_lat, target_lng)
+        return None
+
+    # ── 跨日预排检查 ──────────────────────────────────────────────
+
+    def _check_pre_day_location(
+        self,
+        lat: float,
+        lng: float,
+        sim_min: int,
+        day_idx: int,
+        checker: PreferenceChecker,
+        stats: dict[str, Any],
+    ) -> dict[str, Any] | None:
+        """检查明天是否有day_specific_location，提前reposition靠近目标。"""
+        tomorrow_pending = checker.get_pending_requirements(
+            {"daily_active": {}, "off_days": 0, "region_days": {}, "daily_rest_max": {}},
+            sim_min + 1440,
+        )
+        for req in tomorrow_pending:
+            if req.get("rule_type") == "day_specific_location" and req.get("action") == "go_to_location":
+                tlat = req.get("lat")
+                tlng = req.get("lng")
+                if tlat and tlng:
+                    dist = geo_utils.haversine_km(lat, lng, tlat, tlng)
+                    if dist > 50:
+                        self._logger.info(
+                            "[PRE_DAY] tomorrow day=%d needs %s, %.1fkm away → reposition",
+                            day_idx + 1, req.get("region_name", "?"), dist,
+                        )
+                        stats["reposition_count"] += 1
+                        self._update_avg_score(stats, 0.0)
+                        return self._capped_reposition(lat, lng, tlat, tlng)
         return None
 
     # ── 强制休息检查 ────────────────────────────────────────────────
@@ -658,6 +721,7 @@ class DecisionDispatcher:
         day_constraint: tuple[float, float, float] | None = None,
         region_constraint: tuple[str, float] | None = None,
         driver_state: Any = None,
+        daily_stats: dict[str, Any] | None = None,
     ) -> list[CargoScore]:
         import math
         month_end = 31 * 1440
@@ -676,9 +740,9 @@ class DecisionDispatcher:
             if pickup_km > self._config.filters["max_pickup_km"]:
                 continue
 
-            # 偏好合规检查
-            penalty, violations = checker.check_cargo(cargo, pickup_km, sim_min)
-            if checker.hard_forbidden(cargo, pickup_km, sim_min):
+            # 偏好合规检查（per-rule gamma加权）
+            penalty, violations = checker.check_cargo_weighted(cargo, pickup_km, sim_min, driver_state)
+            if checker.hard_forbidden(cargo, pickup_km, sim_min, driver_state):
                 if violations:
                     self._logger.debug("hard filter: cargo=%s reasons=%s", cargo.get("cargo_id"), violations)
                 continue
@@ -701,6 +765,24 @@ class DecisionDispatcher:
             dest_lat = float((cargo.get("end") or {}).get("lat", 0))
             dest_lng = float((cargo.get("end") or {}).get("lng", 0))
             total_minutes_est = pickup_min + cost_time + 30  # +30min卸货缓冲
+
+            # ★ daily_rest软惩罚：订单导致当天无法8h休息 → penalty×1.3
+            if daily_stats is not None:
+                day_idx_for_check = sim_min // 1440
+                daily_rest_max_chk = daily_stats.get("daily_rest_max", {})
+                for rule in checker.rules:
+                    if rule.rule_type == "daily_rest":
+                        min_h = int(rule.params.get("min_hours", 0))
+                        if min_h <= 0:
+                            continue
+                        longest = daily_rest_max_chk.get(day_idx_for_check, 0)
+                        deficit = min_h * 60 - longest
+                        if deficit < 120:  # 只有缺口>2h才触发
+                            continue
+                        minutes_left = time_utils.minutes_until_next_day(sim_min)
+                        if total_minutes_est + deficit > minutes_left:
+                            penalty *= 1.3
+                        break
             finish_min = sim_min + total_minutes_est
 
             # ★ P0: 全链路完单时间预判 — 防止完单跨入rest_window
