@@ -18,7 +18,8 @@ def _new_grid() -> dict[str, Any]:
         "gen": 0,
         "hour_buckets": [{"count": 0.0, "total_price": 0.0} for _ in range(24)],
         "pickup_distances": [],
-        "score_samples": [],  # 历史分数采样（最多保留50个）
+        "score_samples": [],
+        "shadow_fleet": [0.0 for _ in range(24)],
     }
 
 
@@ -259,3 +260,19 @@ class AreaMemory:
             "total_observations": total_obs,
             "generation": self._generation,
         }
+
+    # ── 影子运力意图 ──────────────────────────────────────────────
+
+    def register_intent(self, lat: float, lng: float, hour: int) -> None:
+        """宣告运力占坑意图：该网格该时段影子运力 +1。"""
+        key = grid_key(lat, lng, self._resolution)
+        g = self._grids[key]
+        g["shadow_fleet"][hour % 24] += 1.0
+
+    def get_shadow_count(self, lat: float, lng: float, hour: int) -> float:
+        """查询该网格该时段的影子运力计数。"""
+        key = grid_key(lat, lng, self._resolution)
+        g = self._grids.get(key)
+        if g is None:
+            return 0.0
+        return g["shadow_fleet"][hour % 24]
