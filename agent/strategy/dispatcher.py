@@ -726,6 +726,17 @@ class DecisionDispatcher:
             if pickup_km > self._config.filters["max_pickup_km"]:
                 continue
 
+            # ★ P0: day_specific_avoid 目的地坐标级硬过滤
+            dest_lat = float((cargo.get("end") or {}).get("lat", 0))
+            dest_lng = float((cargo.get("end") or {}).get("lng", 0))
+            is_avoid, _, _ = checker.check_position_day_avoid(dest_lat, dest_lng, sim_min)
+            if is_avoid:
+                self._logger.debug(
+                    "hard filter: cargo=%s destination falls into day_specific_avoid zone",
+                    cargo.get("cargo_id"),
+                )
+                continue
+
             # 偏好合规检查（per-rule gamma加权）
             penalty, violations = checker.check_cargo_weighted(cargo, pickup_km, sim_min, driver_state)
             if checker.hard_forbidden(cargo, pickup_km, sim_min, driver_state):
@@ -748,8 +759,6 @@ class DecisionDispatcher:
                 penalty += transit_penalty
                 violations.extend(transit_violations)
 
-            dest_lat = float((cargo.get("end") or {}).get("lat", 0))
-            dest_lng = float((cargo.get("end") or {}).get("lng", 0))
             load_wait = 0
             load_time = cargo.get("load_time")
             if isinstance(load_time, list) and len(load_time) == 2:
