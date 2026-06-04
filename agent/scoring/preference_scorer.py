@@ -695,6 +695,7 @@ class PreferenceChecker:
                         days.add(val - 1)
                 if current_day in days:
                     pending.append({
+                        "type": "spatio_temporal_constraint",
                         "rule_type": "day_specific_location",
                         "day": current_day,
                         "lat": rule.params.get("lat"),
@@ -702,6 +703,7 @@ class PreferenceChecker:
                         "region_name": rule.params.get("region_name", ""),
                         "penalty": rule.max_penalty(),
                         "action": "go_to_location",
+                        "deadline_min": (current_day + 1) * 1440,
                     })
 
             elif rule.rule_type == "route_stops":
@@ -741,6 +743,7 @@ class PreferenceChecker:
                                 target_lat, target_lng = coord
                         deadline = stop.get("time_deadline")
                         pending.append({
+                            "type": "spatio_temporal_constraint",
                             "rule_type": "day_specific_location",
                             "source_rule": "route_stops",
                             "day": current_day,
@@ -749,7 +752,7 @@ class PreferenceChecker:
                             "region_name": region,
                             "penalty": rule.max_penalty(),
                             "action": "go_to_location",
-                            "time_deadline": deadline,
+                            "deadline_min": deadline_min,
                         })
                         break  # 只推进到第一个未完成的站点
 
