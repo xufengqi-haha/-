@@ -240,6 +240,17 @@ class DecisionDispatcher:
                             req.get("region"), gap,
                         )
                         break
+            # P3: route_stops 第二站强锁 — 只允许去往目标区域的货源
+            for req in pending_early:
+                if req.get("source_rule") == "route_stops" and req.get("action") == "go_to_location":
+                    target_region = req.get("region_name", "")
+                    if target_region:
+                        region_constraint = (target_region, True)
+                        self._logger.info(
+                            "[ROUTE_LOCK] route_stops locked to %s — noise cargo rejected",
+                            target_region,
+                        )
+                        break
 
         # === Phase 7: 过滤 + 评分 ===
         candidates = self._filter_and_score(
@@ -534,10 +545,16 @@ class DecisionDispatcher:
                 tlng = req.get("lng")
                 if tlat and tlng:
                     dist = geo_utils.haversine_km(lat, lng, tlat, tlng)
-                    if dist > 50:
+                    is_route_stop = req.get("source_rule") == "route_stops"
+                    threshold = 50
+                    log_tag = "[PRE_DAY]"
+                    if is_route_stop:
+                        threshold = 1  # route_stops: 任意距离都提前到位
+                        log_tag = "[PRE_DAY_ROUTE]"
+                    if dist > threshold:
                         self._logger.info(
-                            "[PRE_DAY] tomorrow day=%d needs %s, %.1fkm away → reposition",
-                            day_idx + 1, req.get("region_name", "?"), dist,
+                            "%s tomorrow day=%d needs %s, %.1fkm away → reposition",
+                            log_tag, day_idx + 1, req.get("region_name", "?"), dist,
                         )
                         stats["reposition_count"] += 1
                         self._update_avg_score(stats, 0.0)
@@ -666,7 +683,13 @@ class DecisionDispatcher:
             day = time_utils.sim_min_to_day(action_start)
 
             if action_name == "wait" and action_exec > 0:
-                daily_rest_max[day] = max(daily_rest_max.get(day, 0), action_exec)
+                cur_rest = action_start
+                while cur_rest < action_end:
+                    d_idx = cur_rest // 1440
+                    d_end = (d_idx + 1) * 1440
+                    chunk_rest = min(d_end, action_end) - cur_rest
+                    daily_rest_max[d_idx] = max(daily_rest_max.get(d_idx, 0), chunk_rest)
+                    cur_rest = d_end
 
             if action_name in ("take_order", "reposition"):
                 cur = action_start
