@@ -268,16 +268,30 @@ class DecisionDispatcher:
         scored = [c for c in candidates if c.total_score > 0.05]
         stats["total_decisions"] += 1
 
-        # === Phase 9: 日特定地点检查 ===
+        # === Phase 9: 日特定地点检查（含机会成本对赌） ===
         if self._config.preference_feedback["enable_cumulative_push"]:
-            day_action = self._check_day_specific_location(
+            day_action, constraint_penalty = self._check_day_specific_location(
                 driver_id, lat, lng, sim_min, day_idx, checker, daily_stats, stats
             )
             if day_action is not None:
-                return self._risk_checker.validate(
-                    day_action, driver_id, sim_min, checker,
-                    scored_candidates=scored, current_lat=lat, current_lng=lng,
-                )
+                # 机会成本对赌：如果 Top1 货源净利 > 违约罚分+额外成本，放弃位移
+                abandon = False
+                if scored and constraint_penalty > 0:
+                    best_cargo = scored[0]
+                    extra_cost = geo_utils.haversine_km(lat, lng, best_cargo.dest_lat, best_cargo.dest_lng) * 1.5
+                    if best_cargo.net_profit > (constraint_penalty + extra_cost):
+                        self._logger.info(
+                            "[BUSINESS_WAR] Abandoning constraint (penalty=%.0f) to secure "
+                            "premium cargo %s, net_profit=%.0f > %.0f",
+                            constraint_penalty, best_cargo.cargo_id,
+                            best_cargo.net_profit, constraint_penalty + extra_cost,
+                        )
+                        abandon = True
+                if not abandon:
+                    return self._risk_checker.validate(
+                        day_action, driver_id, sim_min, checker,
+                        scored_candidates=scored, current_lat=lat, current_lng=lng,
+                    )
 
         # === Phase 10: 无合格货源 ===
         if not scored:
@@ -507,12 +521,15 @@ class DecisionDispatcher:
         self, driver_id: str, lat: float, lng: float, sim_min: int,
         day_idx: int, checker: PreferenceChecker, daily_stats: dict[str, Any],
         stats: dict[str, Any],
-    ) -> dict[str, Any] | None:
+    ) -> tuple[dict[str, Any] | None, float]:
+        """返回 (reposition_action, constraint_penalty)。"""
         pending = checker.get_pending_requirements(daily_stats, sim_min)
         for req in pending:
             if req.get("type") == "spatio_temporal_constraint":
-                return self._solve_spatio_temporal(lat, lng, sim_min, day_idx, req, stats, "[TW_SOLVER]", pre_day=False)
-        return None
+                action = self._solve_spatio_temporal(lat, lng, sim_min, day_idx, req, stats, "[TW_SOLVER]", pre_day=False)
+                penalty = req.get("penalty", 0.0)
+                return (action, penalty)
+        return (None, 0.0)
 
     def _check_pre_day_location(
         self, lat: float, lng: float, sim_min: int, day_idx: int,
