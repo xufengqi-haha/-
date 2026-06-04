@@ -70,6 +70,7 @@ class PreferenceRule:
     penalty_cap: float | None
     params: dict[str, Any] = field(default_factory=dict)
     original_content: str = ""
+    stops: list[dict[str, Any]] = field(default_factory=list)
 
     def max_penalty(self) -> float:
         if self.penalty_cap is not None:
@@ -155,6 +156,12 @@ class PreferenceParser:
         self._logger = logging.getLogger("agent.preference_parser")
         self._llm_parse_cache: dict[str, PreferenceRule] = {}
 
+    # 多阶段路线特征关键词：检测到则绕过正则，强制走 LLM 高精度解析
+    _MULTI_STOP_KEYWORDS: tuple[str, ...] = (
+        "先到", "再到", "赶到", "捎上", "宴", "寿宴", "赴宴",
+        "先去", "再去", "顺路", "途经", "路过",
+    )
+
     def parse(self, preferences: list[dict[str, Any]]) -> list[PreferenceRule]:
         rules: list[PreferenceRule] = []
         for pref in preferences:
@@ -167,12 +174,17 @@ class PreferenceParser:
             cap_raw = pref.get("penalty_cap")
             penalty_cap = float(cap_raw) if cap_raw is not None else None
 
-            rule = self._parse_one(content, penalty_amount, penalty_cap)
+            # 前置强分流：检测多阶段路线特征关键词 → 跳过正则匹配，直送 LLM
+            is_multi_stop = any(kw in content for kw in self._MULTI_STOP_KEYWORDS)
+            if is_multi_stop and self._api is not None:
+                rule = self._llm_parse_preference(content, penalty_amount, penalty_cap)
+            else:
+                rule = self._parse_one(content, penalty_amount, penalty_cap)
 
             if rule is None or rule.rule_type == "unknown":
-                if self._api is not None:
+                if self._api is not None and not is_multi_stop:
                     rule = self._llm_parse_preference(content, penalty_amount, penalty_cap)
-                else:
+                elif rule is None:
                     rule = PreferenceRule(
                         rule_type="unknown",
                         penalty_amount=penalty_amount,
@@ -347,8 +359,16 @@ class PreferenceParser:
                 "- forbidden_region_entry: 禁止进入某区域，参数region\n"
                 "- min_days_in_region: 某区域最少活跃天数，参数region, min_days\n"
                 "- day_specific_avoid: 特定日期禁入某区域，参数days列表, region\n"
+                "- route_stops: 多阶段复合路线偏好（先去A再去B、时间前到达），\n"
+                "  参数stops数组，每项含region_name,lat,lng,可选time_deadline(hour)\n"
                 "\n只输出JSON格式：{\"rule_type\":\"...\", \"params\":{...}}\n"
-                "如果无法识别，返回{\"rule_type\":\"unknown\", \"params\":{\"content\":\"原文\"}}"
+                "如果无法识别，返回{\"rule_type\":\"unknown\", \"params\":{\"content\":\"原文\"}}\n"
+                "\n示例：文本：三月三十一号舅公做寿，上午得先过增城区档口捎上寿礼，"
+                "中午十二点前赶到四会县城赴宴到下午两点。\n"
+                "输出：{\"rule_type\":\"route_stops\", \"params\":{\"text\":\"舅公寿宴路线\"},"
+                "\"stops\":[{\"lat\":23.15,\"lng\":113.67,\"region_name\":\"增城\"},"
+                "{\"lat\":23.32,\"lng\":112.83,\"region_name\":\"四会\","
+                "\"time_deadline\":\"12:00\",\"duration_hours\":2}]}"
             )
 
             model_resp = self._api.model_chat_completion({
@@ -369,12 +389,14 @@ class PreferenceParser:
                     rule_type = result.get("rule_type", "unknown")
                     params = result.get("params", {})
 
+                    stops = result.get("stops") or params.get("stops") or []
                     rule = PreferenceRule(
                         rule_type=rule_type,
                         penalty_amount=penalty_amount,
                         penalty_cap=penalty_cap,
                         params=params,
                         original_content=content,
+                        stops=stops,
                     )
                     self._llm_parse_cache[cache_key] = rule
                     self._logger.info("LLM parsed preference: %s", rule_type)
@@ -616,7 +638,7 @@ class PreferenceChecker:
         self,
         daily_stats: dict[str, Any],
         sim_min: int,
-        simulation_duration_days: int = 31,
+        simulation_duration_days: int = 30,
     ) -> list[dict[str, Any]]:
         """返回未满足的累计式偏好需求列表，供 dispatcher 决策推动。"""
         from agent.utils.time_utils import sim_min_to_day
@@ -681,5 +703,54 @@ class PreferenceChecker:
                         "penalty": rule.max_penalty(),
                         "action": "go_to_location",
                     })
+
+            elif rule.rule_type == "route_stops":
+                stops = rule.stops or rule.params.get("stops", [])
+                if not stops:
+                    continue
+                # 可行性止损：提取目标日期，若仿真活不到截止时间则跳过
+                target_day = None
+                for m in re.finditer(r'([一二三]?\s*\d+|[零一二两三四五六七八九十廿卅百]+)', rule.original_content):
+                    val = _parse_int(m.group(1))
+                    if 20 <= val <= 31:
+                        target_day = val - 1
+                        break
+                if target_day is not None:
+                    last_stop = stops[-1]
+                    deadline_str = str(last_stop.get("time_deadline", "23:59"))
+                    try:
+                        dh, dm = (int(x) for x in deadline_str.split(":")[:2])
+                    except (ValueError, TypeError):
+                        dh, dm = 23, 59
+                    deadline_min = target_day * 1440 + dh * 60 + dm
+                    sim_end = simulation_duration_days * 1440
+                    if deadline_min > sim_end:
+                        continue  # 仿真活不到截止时间，放弃此规则
+                region_days = daily_stats.get("region_days", {})
+                # 状态机：按序推进，找到第一个未打卡的站点
+                for stop in stops:
+                    region = str(stop.get("region_name", ""))
+                    visited = len(region_days.get(region, set())) > 0 if region else False
+                    if not visited:
+                        target_lat = float(stop.get("lat", 0))
+                        target_lng = float(stop.get("lng", 0))
+                        if not (target_lat and target_lng):
+                            # 尝试从REGION_COORDINATES回退
+                            coord = REGION_COORDINATES.get(region)
+                            if coord:
+                                target_lat, target_lng = coord
+                        deadline = stop.get("time_deadline")
+                        pending.append({
+                            "rule_type": "day_specific_location",
+                            "source_rule": "route_stops",
+                            "day": current_day,
+                            "lat": target_lat,
+                            "lng": target_lng,
+                            "region_name": region,
+                            "penalty": rule.max_penalty(),
+                            "action": "go_to_location",
+                            "time_deadline": deadline,
+                        })
+                        break  # 只推进到第一个未完成的站点
 
         return pending
