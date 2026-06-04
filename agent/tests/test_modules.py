@@ -105,27 +105,27 @@ def test_preference_checker():
     rules_d001 = parser.parse(d001_prefs)
     checker_d001 = PreferenceChecker(rules_d001)
     mech = {"cargo_id": "C1", "cargo_name": "龙门吊底座运输", "start": {"city": "东莞"}, "end": {"city": "广州"}, "price": 800}
-    p1, _ = checker_d001.check_cargo(mech, 10.0, 0)
+    p1, _ = checker_d001.check_cargo_weighted(mech, 10.0, 0)
     assert p1 > 0, "机械设备 should be penalized"
     hz = {"cargo_id": "C2", "cargo_name": "普通货", "start": {"city": "惠州"}, "end": {"city": "广州"}, "price": 500}
-    p2, _ = checker_d001.check_cargo(hz, 10.0, 0)
+    p2, _ = checker_d001.check_cargo_weighted(hz, 10.0, 0)
     assert p2 > 0, "惠州 cargo should be penalized"
     sz = {"cargo_id": "C3", "cargo_name": "电子", "start": {"city": "深圳"}, "end": {"city": "广州"}, "price": 1500}
-    p3_day4, _ = checker_d001.check_cargo(sz, 10.0, 4 * 1440)
-    p3_day10, _ = checker_d001.check_cargo(sz, 10.0, 10 * 1440)
+    p3_day4, _ = checker_d001.check_cargo_weighted(sz, 10.0, 4 * 1440)
+    p3_day10, _ = checker_d001.check_cargo_weighted(sz, 10.0, 10 * 1440)
     assert p3_day4 > 0, "深圳 on day 4 should be penalized"
     assert p3_day10 == 0, f"深圳 on day 10 should NOT be penalized, got {p3_day10}"
 
     rules_d002 = parser.parse(d002_prefs)
     checker_d002 = PreferenceChecker(rules_d002)
     veg = {"cargo_id": "C4", "cargo_name": "青菜运输", "start": {"city": "深圳"}, "end": {"city": "广州"}, "price": 300}
-    p4, _ = checker_d002.check_cargo(veg, 10.0, 0)
+    p4, _ = checker_d002.check_cargo_weighted(veg, 10.0, 0)
     assert p4 > 0, "蔬菜 should be penalized"
     far = {"cargo_id": "C5", "cargo_name": "普通", "start": {"city": "广州"}, "end": {"city": "深圳"}, "price": 600}
-    p5, _ = checker_d002.check_cargo(far, 70.0, 0)
+    p5, _ = checker_d002.check_cargo_weighted(far, 70.0, 0)
     assert p5 > 0, "70km pickup should be penalized"
     normal = {"cargo_id": "C6", "cargo_name": "电子", "start": {"city": "深圳"}, "end": {"city": "广州"}, "price": 1500}
-    p6, _ = checker_d002.check_cargo(normal, 15.0, 0)
+    p6, _ = checker_d002.check_cargo_weighted(normal, 15.0, 0)
     assert p6 == 0, f"Normal cargo should NOT be penalized, got {p6}"
     print("[PASS] Preference checker OK (7 assertions)")
 

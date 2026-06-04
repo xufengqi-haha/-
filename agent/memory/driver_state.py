@@ -26,10 +26,6 @@ class DriverStateSnapshot:
     # 区域偏好缺口
     region_gaps: dict[str, float] = field(default_factory=dict)  # region_name → gap_ratio (0~1)
 
-    # 连续违规计数
-    consecutive_rest_window_violations: int = 0
-    consecutive_long_deadhead: int = 0
-
     # 全局紧迫度（基于月份进度 0~1）
     month_progress: float = 0.0
 
@@ -68,7 +64,7 @@ class DriverStateSnapshot:
         elif rule_type == "min_days_in_region":
             gamma = self._region_gamma(rule_params or {})
         elif rule_type == "max_pickup_km":
-            gamma = 1.0 + 0.2 * self.consecutive_long_deadhead
+            gamma = 1.0
         elif rule_type == "day_specific_location":
             gamma = 3.0 if self.month_progress > 0.8 else 1.5
         elif rule_type == "day_specific_avoid":

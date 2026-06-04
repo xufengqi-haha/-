@@ -393,26 +393,6 @@ class PreferenceChecker:
     def rules(self) -> list[PreferenceRule]:
         return self._rules
 
-    def check_cargo(
-        self,
-        cargo: dict[str, Any],
-        pickup_distance_km: float,
-        sim_progress_minutes: int,
-    ) -> tuple[float, list[str]]:
-        """对候选货源进行偏好合规检查。返回 (累计罚分, 违规描述列表)。"""
-        total_penalty = 0.0
-        violations: list[str] = []
-        day_idx = sim_progress_minutes // 1440
-        for rule in self._rules:
-            penalty, desc = self._check_cargo_rule(
-                cargo, pickup_distance_km, day_idx, sim_progress_minutes, rule
-            )
-            if penalty > 0:
-                total_penalty += penalty
-                if desc:
-                    violations.extend(desc)
-        return min(total_penalty, 50000.0), violations
-
     def check_cargo_weighted(
         self,
         cargo: dict[str, Any],
@@ -596,36 +576,6 @@ class PreferenceChecker:
         if violations:
             return rule.max_penalty(), violations
         return 0.0, []
-
-    def evaluate_daily_rest_penalty(self, day: int, longest_rest_minutes: int) -> float:
-        total = 0.0
-        for rule in self._rules:
-            if rule.rule_type != "daily_rest":
-                continue
-            min_hours = int(rule.params.get("min_hours", 0))
-            if longest_rest_minutes < min_hours * 60:
-                total += rule.max_penalty()
-        return total
-
-    def evaluate_off_days_penalty(self, off_days_count: int) -> float:
-        total = 0.0
-        for rule in self._rules:
-            if rule.rule_type != "off_days":
-                continue
-            min_days = int(rule.params.get("min_days", 0))
-            if off_days_count < min_days:
-                total += rule.max_penalty()
-        return total
-
-    def evaluate_min_days_in_region_penalty(self, region_days: int) -> float:
-        total = 0.0
-        for rule in self._rules:
-            if rule.rule_type != "min_days_in_region":
-                continue
-            min_days = int(rule.params.get("min_days", 0))
-            if region_days < min_days:
-                total += rule.max_penalty()
-        return total
 
     def check_transit_violation(
         self,

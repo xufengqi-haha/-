@@ -472,27 +472,6 @@ class DecisionDispatcher:
                 len(boost_reqs), day_idx,
             )
 
-    def _find_safe_location(
-        self, lat: float, lng: float, checker: PreferenceChecker, sim_min: int
-    ) -> tuple[float, float] | None:
-        """找到最近的不在day_specific_avoid禁区内的城市坐标。"""
-        day_idx = sim_min // 1440
-        forbidden_regions: set[str] = set()
-        for rule in checker.rules:
-            if rule.rule_type == "day_specific_avoid":
-                if day_idx in rule.params.get("days", []):
-                    forbidden_regions.add(str(rule.params.get("region", "")))
-        best_coord = None
-        best_dist = float("inf")
-        for name, coord in REGION_COORDINATES.items():
-            if any(fr in name for fr in forbidden_regions):
-                continue
-            d = geo_utils.haversine_km(lat, lng, coord[0], coord[1])
-            if d < best_dist:
-                best_dist = d
-                best_coord = coord
-        return best_coord
-
     def _city_at(self, lat: float, lng: float) -> str:
         best_city = ""
         best_dist = float("inf")
@@ -920,7 +899,7 @@ class DecisionDispatcher:
             pickup_km = float(item.get("distance_km", 0) or 0)
             if pickup_km > self._config.filters["max_pickup_km"]:
                 continue
-            penalty, _ = checker.check_cargo(cargo, pickup_km, sim_min)
+            penalty, _ = checker.check_cargo_weighted(cargo, pickup_km, sim_min, driver_state=None)
             if checker.hard_forbidden(cargo, pickup_km, sim_min):
                 continue
             s = self._scorer.score(cargo, pickup_km, sim_min, self._area_memory, preference_penalty=penalty)
