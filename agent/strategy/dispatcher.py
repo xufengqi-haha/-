@@ -144,7 +144,7 @@ class DecisionDispatcher:
         stats = self._decision_stats[driver_id]
 
         # ★ 提前计算 pending 和 driver_state（供 gamma 驱动休息检查使用）
-        pending_early = checker.get_pending_requirements(daily_stats, sim_min)
+        pending_early = checker.get_pending_requirements(daily_stats, sim_min, sim_horizon // 1440)
         driver_state = self._driver_state_tracker.update(
             driver_id, sim_min, daily_stats, pending_early, checker.rules,
         )
@@ -176,7 +176,7 @@ class DecisionDispatcher:
 
         # === Phase 2.5: 跨日预排 — 明天有day_specific_location且距离远 → 提前reposition ===
         if hour_of_day >= 18:
-            pre_day_action = self._check_pre_day_location(lat, lng, sim_min, day_idx, checker, stats)
+            pre_day_action = self._check_pre_day_location(lat, lng, sim_min, day_idx, checker, stats, sim_horizon)
             if pre_day_action is not None:
                 return self._risk_checker.validate(
                     pre_day_action, driver_id, sim_min, checker,
@@ -271,7 +271,7 @@ class DecisionDispatcher:
         # === Phase 9: 日特定地点检查（含机会成本对赌） ===
         if self._config.preference_feedback["enable_cumulative_push"]:
             day_action, constraint_penalty = self._check_day_specific_location(
-                driver_id, lat, lng, sim_min, day_idx, checker, daily_stats, stats
+                driver_id, lat, lng, sim_min, day_idx, checker, daily_stats, stats, sim_horizon
             )
             if day_action is not None:
                 # 机会成本对赌：如果 Top1 货源净利 > 违约罚分+额外成本，放弃位移
@@ -296,7 +296,7 @@ class DecisionDispatcher:
         # === Phase 10: 无合格货源 ===
         if not scored:
             action = self._handle_no_cargo(
-                driver_id, lat, lng, sim_min, day_idx, checker, daily_stats, stats, cold_start
+                driver_id, lat, lng, sim_min, day_idx, checker, daily_stats, stats, cold_start, sim_horizon
             )
             return self._risk_checker.validate(
                 action, driver_id, sim_min, checker,
@@ -520,10 +520,10 @@ class DecisionDispatcher:
     def _check_day_specific_location(
         self, driver_id: str, lat: float, lng: float, sim_min: int,
         day_idx: int, checker: PreferenceChecker, daily_stats: dict[str, Any],
-        stats: dict[str, Any],
+        stats: dict[str, Any], sim_horizon: int = 43200,
     ) -> tuple[dict[str, Any] | None, float]:
         """返回 (reposition_action, constraint_penalty)。"""
-        pending = checker.get_pending_requirements(daily_stats, sim_min)
+        pending = checker.get_pending_requirements(daily_stats, sim_min, sim_horizon // 1440)
         for req in pending:
             if req.get("type") == "spatio_temporal_constraint":
                 action = self._solve_spatio_temporal(lat, lng, sim_min, day_idx, req, stats, "[TW_SOLVER]", pre_day=False)
@@ -534,11 +534,13 @@ class DecisionDispatcher:
     def _check_pre_day_location(
         self, lat: float, lng: float, sim_min: int, day_idx: int,
         checker: PreferenceChecker, stats: dict[str, Any],
+        sim_horizon: int = 43200,
     ) -> dict[str, Any] | None:
         """跨日预排：提前 reposition 靠近明天的时空约束目标。"""
         tomorrow_pending = checker.get_pending_requirements(
             {"daily_active": {}, "off_days": 0, "region_days": {}, "daily_rest_max": {}},
             sim_min + 1440,
+            sim_horizon // 1440,
         )
         for req in tomorrow_pending:
             if req.get("type") == "spatio_temporal_constraint":
@@ -939,12 +941,13 @@ class DecisionDispatcher:
         daily_stats: dict[str, Any],
         stats: dict[str, Any],
         cold_start: bool = False,
+        sim_horizon: int = 43200,
     ) -> dict[str, Any]:
         hour_of_day = time_utils.sim_min_to_hour_of_day(sim_min)
         daily_rest_max = daily_stats.get("daily_rest_max", {})
 
         # 策略0：日特定地点
-        pending = checker.get_pending_requirements(daily_stats, sim_min)
+        pending = checker.get_pending_requirements(daily_stats, sim_min, sim_horizon // 1440)
         for req in pending:
             if req.get("rule_type") == "day_specific_location" and req.get("action") == "go_to_location":
                 target_lat = req.get("lat")
