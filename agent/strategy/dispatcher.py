@@ -785,6 +785,34 @@ class DecisionDispatcher:
                         break
             finish_min = sim_min + total_minutes_est
 
+            # ★ P0: Cross-Day DailyRest Feasibility Check — 防止跨天单导致次日无法休满
+            skip_for_daily_rest = False
+            if daily_stats is not None:
+                cur_day = sim_min // 1440
+                finish_day = finish_min // 1440
+                if finish_day > cur_day:
+                    for rule in checker.rules:
+                        if rule.rule_type == "daily_rest":
+                            min_h = int(rule.params.get("min_hours", 0))
+                            if min_h <= 0:
+                                continue
+                            need_rest = min_h * 60
+                            next_longest = daily_stats.get("daily_rest_max", {}).get(finish_day, 0)
+                            if next_longest >= need_rest:
+                                continue
+                            remaining_next = 1440 - (finish_min % 1440)
+                            if remaining_next < need_rest:
+                                skip_for_daily_rest = True
+                                self._logger.debug(
+                                    "P0 reject: cross-day daily_rest infeasible "
+                                    "finish_day=%d remaining_next=%d need=%d cargo=%s",
+                                    finish_day, remaining_next, need_rest,
+                                    cargo.get("cargo_id"),
+                                )
+                            break
+            if skip_for_daily_rest:
+                continue
+
             # ★ P0: 全链路完单时间预判 — 防止完单跨入rest_window
             skip_for_rest = False
             for rule in checker.rules:
