@@ -20,6 +20,7 @@ def _new_grid() -> dict[str, Any]:
         "pickup_distances": [],
         "score_samples": [],
         "shadow_fleet": [0.0 for _ in range(24)],
+        "expected_cargo_capacity": [max(2.0, 5.0) for _ in range(24)],
     }
 
 
@@ -89,6 +90,8 @@ class AreaMemory:
             g["gen"] = self._generation
             g["hour_buckets"][hour]["count"] += 1.0
             g["hour_buckets"][hour]["total_price"] += price
+            # 弹性容量基准：历史同时段货源密度的滚动平均
+            g["expected_cargo_capacity"][hour] = max(2.0, g["hour_buckets"][hour]["count"])
             g["pickup_distances"].append(pickup_km)
             if len(g["pickup_distances"]) > 50:
                 g["pickup_distances"] = g["pickup_distances"][-50:]
@@ -268,6 +271,14 @@ class AreaMemory:
         key = grid_key(lat, lng, self._resolution)
         g = self._grids[key]
         g["shadow_fleet"][hour % 24] += 1.0
+
+    def get_grid_capacity(self, lat: float, lng: float, hour: int) -> float:
+        """返回该网格该时段的弹性货源容量基准。"""
+        key = grid_key(lat, lng, self._resolution)
+        g = self._grids.get(key)
+        if g is None:
+            return 2.0
+        return g["expected_cargo_capacity"][hour % 24]
 
     def get_shadow_count(self, lat: float, lng: float, hour: int) -> float:
         """查询该网格该时段的影子运力计数。"""
