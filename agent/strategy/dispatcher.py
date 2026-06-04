@@ -690,7 +690,13 @@ class DecisionDispatcher:
                 daily_rest_max[day] = max(daily_rest_max.get(day, 0), action_exec)
 
             if action_name in ("take_order", "reposition"):
-                daily_active[day] = daily_active.get(day, 0) + action_exec
+                cur = action_start
+                while cur < action_end:
+                    day_idx = cur // 1440
+                    day_end = (day_idx + 1) * 1440
+                    chunk = min(day_end, action_end) - cur
+                    daily_active[day_idx] = daily_active.get(day_idx, 0) + chunk
+                    cur = day_end
                 if action_name == "take_order" and bool(result.get("accepted", False)):
                     for region_name in COMMON_REGION_NAMES:
                         if near_region(pos_before, region_name) or near_region(pos_after, region_name):
@@ -724,6 +730,7 @@ class DecisionDispatcher:
         daily_stats: dict[str, Any] | None = None,
     ) -> list[CargoScore]:
         import math
+        from datetime import datetime
         month_end = 31 * 1440
         scored: list[CargoScore] = []
         for item in items:
@@ -764,7 +771,19 @@ class DecisionDispatcher:
 
             dest_lat = float((cargo.get("end") or {}).get("lat", 0))
             dest_lng = float((cargo.get("end") or {}).get("lng", 0))
-            total_minutes_est = pickup_min + cost_time + 30  # +30min卸货缓冲
+            load_wait = 0
+            load_time = cargo.get("load_time")
+            if isinstance(load_time, list) and len(load_time) == 2:
+                try:
+                    start_str = str(load_time[0]).strip()
+                    start_dt = datetime.strptime(start_str, "%Y-%m-%d %H:%M:%S")
+                    load_start_min = int((start_dt - time_utils.SIMULATION_EPOCH).total_seconds() // 60)
+                    arrival = sim_min + pickup_min
+                    if arrival < load_start_min:
+                        load_wait = load_start_min - arrival
+                except (ValueError, KeyError):
+                    pass
+            total_minutes_est = pickup_min + cost_time + load_wait + 30  # +30min卸货缓冲
 
             # ★ daily_rest软惩罚：订单导致当天无法8h休息 → penalty×1.3
             if daily_stats is not None:
@@ -797,16 +816,25 @@ class DecisionDispatcher:
                             if min_h <= 0:
                                 continue
                             need_rest = min_h * 60
-                            next_longest = daily_stats.get("daily_rest_max", {}).get(finish_day, 0)
-                            if next_longest >= need_rest:
-                                continue
-                            remaining_next = 1440 - (finish_min % 1440)
-                            if remaining_next < need_rest:
+                            blocked = False
+                            blocked_day = finish_day
+                            for d in range(cur_day + 1, finish_day + 1):
+                                day_longest = daily_stats.get("daily_rest_max", {}).get(d, 0)
+                                if day_longest >= need_rest:
+                                    continue
+                                if d < finish_day:
+                                    blocked = True
+                                    blocked_day = d
+                                else:
+                                    remaining_next = 1440 - (finish_min % 1440)
+                                    if remaining_next < need_rest:
+                                        blocked = True
+                            if blocked:
                                 skip_for_daily_rest = True
-                                self._logger.debug(
+                                self._logger.info(
                                     "P0 reject: cross-day daily_rest infeasible "
-                                    "finish_day=%d remaining_next=%d need=%d cargo=%s",
-                                    finish_day, remaining_next, need_rest,
+                                    "blocked_day=%d finish_day=%d need=%d cargo=%s",
+                                    blocked_day, finish_day, need_rest,
                                     cargo.get("cargo_id"),
                                 )
                             break
