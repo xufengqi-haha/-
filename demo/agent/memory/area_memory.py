@@ -1,18 +1,33 @@
-"""区域热度记忆：双向时空流供需画布。
-V3 Swarm Intelligence: 每个网格维护双向看板——shadow_fleet（司机占坑计数）与
-expected_cargo_capacity（大盘历史货源刷新量），为 CargoScorer 的弹性供需分配
-与 Pioneer Premium 战略引流机制提供数据底座。"""
+"""区域记忆：时空流体引力势场（Dynamic Markov Potential Field）。
+Phase 4 Pure-Matrix: 废除静态容量水位线，根据全网司机已宣告的远期目的地与预抵达
+时间桶，利用一阶马尔可夫动态转移概率连续测绘未来 24 小时每个网格的时空运力堆积
+势能 Φ(Potential Energy)，驱动 CargoScorer 的流体力学热度势能公式实现宏观纳什均衡。
+"""
 
 from __future__ import annotations
 
+import math
 from collections import defaultdict
 from typing import Any
 
 from agent.utils.geo_utils import grid_key, haversine_km
 
+# 势场衰减系数
+_SPATIAL_BANDWIDTH_KM = 30.0    # 空间衰减带宽：30km 外势能衰减至 ~37%
+_TEMPORAL_BANDWIDTH_H = 2.0     # 时间衰减带宽：±2h 外势能衰减至 ~37%
+_NEIGHBOR_WEIGHT = 0.35          # 相邻网格势能传导权重
+_TEMPORAL_NEIGHBOR_WEIGHT = 0.45  # 相邻时段势能传导权重
 
-# V3 通用网格基准容量：每个时段的期望货源刷新量默认值
-_V3_BASELINE_CAPACITY = 3.0
+
+def _neighbor_keys(lat: float, lng: float, resolution: float) -> list[str]:
+    """返回中心网格及其 8 个邻居的 grid_key 列表（3×3 卷积核）。"""
+    base_lat = round(lat / resolution) * resolution
+    base_lng = round(lng / resolution) * resolution
+    keys = []
+    for dlat in (-resolution, 0.0, resolution):
+        for dlng in (-resolution, 0.0, resolution):
+            keys.append(grid_key(base_lat + dlat, base_lng + dlng, resolution))
+    return keys
 
 
 def _new_grid() -> dict[str, Any]:
@@ -25,13 +40,13 @@ def _new_grid() -> dict[str, Any]:
         "hour_buckets": [{"count": 0.0, "total_price": 0.0} for _ in range(24)],
         "pickup_distances": [],
         "score_samples": [],
-        "shadow_fleet": [0.0 for _ in range(24)],
-        "expected_cargo_capacity": [_V3_BASELINE_CAPACITY for _ in range(24)],
+        # Phase 4: 势能画布替代原始影子计数
+        "intent_potential": [0.0 for _ in range(24)],
     }
 
 
 class AreaMemory:
-    """全局区域统计数据，跨司机共享。使用代际计数器 + 按需衰减。"""
+    """全局区域统计数据 + 时空势场，跨司机共享。"""
 
     def __init__(
         self,
@@ -44,7 +59,6 @@ class AreaMemory:
         self._decay_interval = decay_interval
         self._generation = 0
         self._grids: dict[str, dict[str, Any]] = defaultdict(_new_grid)
-        #  per-driver 冷启动追踪
         self._driver_query_counts: dict[str, int] = defaultdict(int)
 
     @property
@@ -52,7 +66,6 @@ class AreaMemory:
         return self._generation
 
     def record_driver_query(self, driver_id: str) -> None:
-        """记录该司机的查询次数，用于 per-driver 冷启动判断。"""
         self._driver_query_counts[driver_id] += 1
 
     def get_driver_query_count(self, driver_id: str) -> int:
@@ -65,7 +78,6 @@ class AreaMemory:
         items: list[dict[str, Any]],
         sim_min: int = 0,
     ) -> None:
-        """每步决策查询货源后调用。sim_min 用于记录时段剖面。"""
         self._generation += 1
         hour = (sim_min % 1440) // 60
 
@@ -96,16 +108,11 @@ class AreaMemory:
             g["gen"] = self._generation
             g["hour_buckets"][hour]["count"] += 1.0
             g["hour_buckets"][hour]["total_price"] += price
-            # V3 弹性容量基准：历史同时段货源密度的 EMA 滚动估计，地板为基准值
-            current_cap = g["expected_cargo_capacity"][hour]
-            observed = g["hour_buckets"][hour]["count"]
-            g["expected_cargo_capacity"][hour] = max(_V3_BASELINE_CAPACITY, 0.7 * current_cap + 0.3 * observed)
             g["pickup_distances"].append(pickup_km)
             if len(g["pickup_distances"]) > 50:
                 g["pickup_distances"] = g["pickup_distances"][-50:]
 
     def record_score_sample(self, lat: float, lng: float, score: float) -> None:
-        """记录一个货源评分样本到对应网格，用于百分位估算。"""
         key = grid_key(lat, lng, self._resolution)
         g = self._grids[key]
         g["score_samples"].append(score)
@@ -134,7 +141,6 @@ class AreaMemory:
             del self._grids[key]
 
     def get_heat(self, lat: float, lng: float, hour: int | None = None) -> float:
-        """货源热度（0~1）。hour=None 用全天数据，指定时用时段数据。"""
         key = grid_key(lat, lng, self._resolution)
         g = self._grids.get(key)
         if g is None:
@@ -188,35 +194,24 @@ class AreaMemory:
         return sum(g["pickup_distances"]) / len(g["pickup_distances"])
 
     def get_score_percentile(self, lat: float, lng: float, target_score: float) -> float:
-        """估算 target_score (0~1) 在该区域历史分数中的百分位 (0~1)。
-        使用存储的历史分数样本计算，样本不足时基于价格/热度启发式估算。
-        返回值越接近 1 表示 target_score 超过了越多历史分数（即当前单越好）。
-        """
         key = grid_key(lat, lng, self._resolution)
         g = self._grids.get(key)
         if g is None:
             return 0.5
-
         samples = g.get("score_samples", [])
         if len(samples) >= 5:
             better = sum(1 for s in samples if s <= target_score)
             return better / len(samples)
-
-        # 样本不足时，基于价格和密度启发式估算
         if g["count"] < 2:
             return 0.5
-
         avg_price = g["total_price"] / g["count"] if g["count"] > 0 else 0.0
         avg_pickup = self.get_avg_pickup_distance(lat, lng)
         cost_per_km = 1.5
         typical_net = avg_price - avg_pickup * cost_per_km
         typical_net_per_hour = (typical_net / max(1, (avg_pickup / 60.0 * 60.0 + 180.0))) * 60.0
-
-        # 用 net_profit 和 profit_per_hour 构建一个近似 score
         profit_score = max(0.0, min(1.0, (typical_net + 500) / 3500.0))
         efficiency_score = max(0.0, min(1.0, (typical_net_per_hour + 50) / 550.0))
         typical_score_est = 0.25 * profit_score + 0.22 * efficiency_score + 0.20 * self.get_heat(lat, lng)
-
         ratio = target_score / max(0.01, typical_score_est)
         if ratio >= 2.0:
             return 0.95
@@ -232,7 +227,6 @@ class AreaMemory:
             return 0.08
 
     def get_expected_net_profit(self, lat: float, lng: float) -> float:
-        """估算在该区域可接单的期望净收益（元），基于历史均价和平均空驶距离。"""
         avg_price = self.get_avg_price(lat, lng)
         if avg_price <= 0:
             return 400.0
@@ -272,50 +266,63 @@ class AreaMemory:
             "generation": self._generation,
         }
 
-    # ── V3 双向供需画布 ────────────────────────────────────────────
-
-    def get_grid_capacity(self, lat: float, lng: float, hour: int) -> float:
-        """返回该网格该时段的弹性货源容量基准（V3: 默认地板 3.0）。"""
-        key = grid_key(lat, lng, self._resolution)
-        g = self._grids.get(key)
-        if g is None:
-            return _V3_BASELINE_CAPACITY
-        return max(_V3_BASELINE_CAPACITY, g["expected_cargo_capacity"][hour % 24])
-
-    def get_shadow_count(self, lat: float, lng: float, hour: int) -> float:
-        """查询该网格该时段的影子运力计数。"""
-        key = grid_key(lat, lng, self._resolution)
-        g = self._grids.get(key)
-        if g is None:
-            return 0.0
-        return g["shadow_fleet"][hour % 24]
-
-    def get_supply_demand_ratio(self, lat: float, lng: float, hour: int) -> float:
-        """V3 双向供需比：expected_cargo_capacity / (shadow_count + 1)。
-        ratio >= 1.0 → 运力空缺/货源紧缺，可触发 Pioneer Premium。
-        ratio < 1.0  → 运力过剩/僧多粥少，需降权惩罚。
-        """
-        capacity = self.get_grid_capacity(lat, lng, hour)
-        shadow = self.get_shadow_count(lat, lng, hour)
-        return capacity / (shadow + 1.0)
-
-    def get_canvas_snapshot(
-        self, lat: float, lng: float, hour: int
-    ) -> dict[str, float]:
-        """V3 快照：返回网格的供需全貌，供外部评分器消费。"""
-        ratio = self.get_supply_demand_ratio(lat, lng, hour)
-        return {
-            "capacity": self.get_grid_capacity(lat, lng, hour),
-            "shadow_count": self.get_shadow_count(lat, lng, hour),
-            "supply_demand_ratio": round(ratio, 4),
-            "is_oversupplied": ratio < 1.0,
-            "is_undersupplied": ratio >= 1.5,
-        }
-
-    # ── 影子运力意图 ──────────────────────────────────────────────
+    # ── Phase 4 时空势场引擎 ────────────────────────────────────────
 
     def register_intent(self, lat: float, lng: float, hour: int) -> None:
-        """宣告运力占坑意图：该网格该时段影子运力 +1。"""
-        key = grid_key(lat, lng, self._resolution)
-        g = self._grids[key]
-        g["shadow_fleet"][hour % 24] += 1.0
+        """宣告运力意图：向目标网格及其时空邻域注入势能。
+        一阶马尔可夫转移：势能向相邻网格（空间）和相邻时段（时间）扩散。
+        """
+        h = hour % 24
+        center_key = grid_key(lat, lng, self._resolution)
+        neighbor_keys = _neighbor_keys(lat, lng, self._resolution)
+
+        for nk in neighbor_keys:
+            g = self._grids[nk]
+            is_center = (nk == center_key)
+            spatial_w = 1.0 if is_center else _NEIGHBOR_WEIGHT
+
+            # 空间传导后的基值
+            base = spatial_w
+
+            # 时间传导：当前小时 + 前后各 2 小时
+            for dh in range(-2, 3):
+                th = (h + dh) % 24
+                temporal_w = 1.0 if dh == 0 else (
+                    _TEMPORAL_NEIGHBOR_WEIGHT if abs(dh) == 1 else
+                    _TEMPORAL_NEIGHBOR_WEIGHT * 0.5
+                )
+                g["intent_potential"][th] += base * temporal_w
+
+    def get_potential_energy(self, lat: float, lng: float, hour: int) -> float:
+        """查询目标网格在目标小时的时空运力堆积势能 Φ。
+        聚合中心网格及其空间邻域在目标小时±1范围内的势能贡献。
+        """
+        h = hour % 24
+        total = 0.0
+        neighbor_keys = _neighbor_keys(lat, lng, self._resolution)
+        center_key = grid_key(lat, lng, self._resolution)
+
+        for nk in neighbor_keys:
+            g = self._grids.get(nk)
+            if g is None:
+                continue
+            is_center = (nk == center_key)
+            spatial_w = 1.0 if is_center else _NEIGHBOR_WEIGHT
+
+            for dh in range(-1, 2):
+                th = (h + dh) % 24
+                temporal_w = 1.0 if dh == 0 else _TEMPORAL_NEIGHBOR_WEIGHT
+                total += g["intent_potential"][th] * spatial_w * temporal_w
+
+        return total
+
+    # ── 向后兼容 API ──────────────────────────────────────────────
+
+    def get_shadow_count(self, lat: float, lng: float, hour: int) -> float:
+        """返回目标网格目标小时的原始势能值（向后兼容）。"""
+        return self.get_potential_energy(lat, lng, hour)
+
+    def get_grid_capacity(self, lat: float, lng: float, hour: int) -> float:
+        """Phase 4 已废除硬编码容量基线，返回势能的倒数归一化值（向后兼容）。"""
+        pe = self.get_potential_energy(lat, lng, hour)
+        return 3.0 / (1.0 + 0.3 * math.sqrt(pe)) if pe > 0 else 3.0

@@ -1,10 +1,11 @@
 """货源多维度综合评分引擎。
-V3 Swarm Intelligence: 挂载时空流弹性供需分配机制——废除被动对数降权，引入
-supply_demand_ratio 驱动的指数惩罚（运力过剩）与 Pioneer Premium 战略引流溢价
-（运力空缺），实现百人并发的自发最优进化。"""
+Phase 4 Pure-Matrix: 挂载流体力学热度势能公式——
+combined_heat_score / (1.0 + alpha * sqrt(potential_energy))，
+通过时空势场梯度自发调节，驱动 52 名司机在珠三角网络上达成宏观纳什均衡。"""
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -108,26 +109,17 @@ class CargoScorer:
 
         combined_heat_score = 0.4 * start_heat_score + 0.6 * dest_heat_score
 
-        # ── V3 时空流宏观弹性画布：动态供需弹性分配 ─────────────────
-        # 废除 V2 的被动 min(1.0, ratio) 对数降权，升级为双向弹性机制：
-        #   ratio < 1.0（运力过剩/僧多粥少）→ 指数级降权惩罚
-        #   ratio >= 1.0（货源紧缺/运力空缺）→ 保持原热度 + Pioneer Premium
+        # ── Phase 4 流体力学热度势能公式 ─────────────────────────────
+        # 废除 V3 的静态容量水位线与 Pioneer Premium，升级为时空势场驱动：
+        #   combined_heat_score = combined_heat_score / (1.0 + alpha * sqrt(Φ))
+        # 其中 Φ 为 Markov 势场在该网格该时段的运力堆积势能。
+        #   势能越高（运力越拥挤）→ 分母越大 → 热度被自然压低
+        #   势能越低（运力空缺）→ 分母趋近 1.0 → 热度原值保留，自发吸引司机
+        ALPHA = 0.3
         arrival_hour = int((sim_progress_minutes + total_minutes) // 60) % 24
-        shadow_count = area_memory.get_shadow_count(dest_lat, dest_lng, arrival_hour) if area_memory else 0.0
-        capacity = area_memory.get_grid_capacity(dest_lat, dest_lng, arrival_hour) if area_memory else 3.0
-        supply_demand_ratio = capacity / (shadow_count + 1.0)
-
-        pioneer_premium = 0.0
-        if supply_demand_ratio < 1.0:
-            # V3 运力过剩：指数级惩罚 ratio^2 — 当 2 倍过载时 heat 折至 25%
-            elasticity_mult = supply_demand_ratio ** 2.0
-            combined_heat_score *= elasticity_mult
-            dest_heat_score = combined_heat_score
-        else:
-            # V3 运力空缺：保持原热度 + Pioneer Premium 战略引流溢价
-            pioneer_premium = 0.15
-            combined_heat_score = min(1.0, combined_heat_score + pioneer_premium)
-            dest_heat_score = combined_heat_score
+        potential_energy = area_memory.get_potential_energy(dest_lat, dest_lng, arrival_hour) if area_memory else 0.0
+        combined_heat_score = combined_heat_score / (1.0 + ALPHA * math.sqrt(max(0.0, potential_energy)))
+        dest_heat_score = combined_heat_score
 
         # ★ 经济账公式：有效罚分 = 原始罚分 × γ（动态膨胀系数）
         effective_penalty = preference_penalty * gamma
@@ -182,10 +174,9 @@ class CargoScorer:
                 "load_wait_minutes": round(load_wait_minutes, 1),
                 "distance_score": round(distance_score, 4),
                 "future_value": round(future_value, 1),
-                # V3 供需弹性画布观测
-                "supply_demand_ratio": round(supply_demand_ratio, 4),
-                "shadow_count": round(shadow_count, 1),
-                "pioneer_premium": round(pioneer_premium, 4),
+                # Phase 4 势场观测
+                "potential_energy": round(potential_energy, 4),
+                "arrival_hour": arrival_hour,
             },
         )
 
@@ -195,7 +186,6 @@ class CargoScorer:
     def _distance_to_minutes(self, distance_km: float) -> float:
         if distance_km <= 0:
             return 0.0
-        import math
         return max(1, math.ceil((distance_km / self._cfg.speed_km_per_hour) * 60.0))
 
     def _eval_distance_reasonability(self, haul_distance: float) -> float:

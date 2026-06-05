@@ -268,23 +268,26 @@ class DecisionDispatcher:
         scored = [c for c in candidates if c.total_score > 0.05]
         stats["total_decisions"] += 1
 
-        # === Phase 9: 日特定地点检查（含机会成本对赌） ===
+        # === Phase 9: Lagrangian Relaxation 约束松弛 ===
         if self._config.preference_feedback["enable_cumulative_push"]:
-            day_action, constraint_penalty = self._check_day_specific_location(
+            day_action, duality_loss = self._check_day_specific_location(
                 driver_id, lat, lng, sim_min, day_idx, checker, daily_stats, stats, sim_horizon
             )
             if day_action is not None:
-                # 机会成本对赌：如果 Top1 货源净利 > 违约罚分+额外成本，放弃位移
+                # Phase 4 Lagrangian: 当 Top1 货源纯利 > 对偶损失 → 约束松弛
                 abandon = False
-                if scored and constraint_penalty > 0:
+                if scored and duality_loss > 0:
                     best_cargo = scored[0]
-                    extra_cost = geo_utils.haversine_km(lat, lng, best_cargo.dest_lat, best_cargo.dest_lng) * 1.5
-                    if best_cargo.net_profit > (constraint_penalty + extra_cost):
+                    if best_cargo.net_profit > duality_loss:
                         self._logger.info(
-                            "[BUSINESS_WAR] Abandoning constraint (penalty=%.0f) to secure "
-                            "premium cargo %s, net_profit=%.0f > %.0f",
-                            constraint_penalty, best_cargo.cargo_id,
-                            best_cargo.net_profit, constraint_penalty + extra_cost,
+                            "[LAGRANGIAN_WAR] Boundary relaxed. "
+                            "Cargo net profit optimized duality gap. "
+                            "Cargo_ID=%s net_profit=%.0f > duality_loss=%.0f "
+                            "(λ=%.0f). Accepting cargo, abandoning reposition.",
+                            best_cargo.cargo_id,
+                            best_cargo.net_profit,
+                            duality_loss,
+                            duality_loss,
                         )
                         abandon = True
                 if not abandon:
@@ -482,53 +485,74 @@ class DecisionDispatcher:
 
     # ── 日特定地点检查 ──────────────────────────────────────────────
 
-    # ── 通用时空约束求解器 ──────────────────────────────────────────
+    # ── Phase 4 拉格朗日松弛求解器 ────────────────────────────────
 
     def _solve_spatio_temporal(
         self, lat: float, lng: float, sim_min: int, day_idx: int,
         constraint: dict[str, Any], stats: dict[str, Any], log_tag: str,
         pre_day: bool = False,
-    ) -> dict[str, Any] | None:
-        """通用 TW-Solver：输入标准时空约束，判断是否需立即 Reposition。"""
+    ) -> tuple[dict[str, Any] | None, float]:
+        """Phase 4 Lagrangian Relaxation Solver。
+        废除 Hard Barrier 一票否决。将约束罚金抽象为拉格朗日乘子 λ，
+        返回 (reposition_action, duality_loss)。
+        - reposition_action: 需要执行的空驶动作，None 表示无需立即位移
+        - duality_loss: λ × urgency，供上层与货源纯利做对偶松弛比较
+        """
         tlat = constraint.get("lat")
         tlng = constraint.get("lng")
         if not (tlat and tlng):
-            return None
+            return None, 0.0
+
         deadline_min = constraint.get("deadline_min", (day_idx + 1) * 1440)
         dist = geo_utils.haversine_km(lat, lng, tlat, tlng)
         if dist < 3:
-            return None  # 已在目标地 3km 内
+            return None, 0.0  # 已在目标地 3km 内，无约束压力
 
         transit_min = (dist / 60.0) * 60
         time_to_deadline = deadline_min - sim_min
         safety_buffer = 120
 
-        urgent = time_to_deadline - transit_min < safety_buffer
-        far_away = dist > 50 and pre_day  # 跨日预排：距离远则提前位移
+        # 拉格朗日乘子 λ = 约束罚金额
+        lambda_val = constraint.get("penalty", 5000.0)
 
-        if urgent or far_away:
+        # 时间紧急度：剩余时间/所需时间 → 越小越紧急
+        if transit_min > 0:
+            urgency = max(0.0, min(5.0, safety_buffer / max(1.0, time_to_deadline - transit_min)))
+        else:
+            urgency = 0.0
+
+        # 对偶损失：λ × 时间压力
+        duality_loss = lambda_val * max(0.1, urgency)
+
+        hard_urgent = time_to_deadline - transit_min < safety_buffer
+        far_away = dist > 50 and pre_day
+
+        if hard_urgent or far_away:
             self._logger.info(
-                "%s day=%d dist=%.1fkm deadline=%d ttd=%d transit=%.0f → reposition to %s",
-                log_tag, day_idx, dist, deadline_min, time_to_deadline, transit_min,
+                "%s λ=%.0f urgency=%.2f duality_loss=%.0f day=%d dist=%.1fkm "
+                "deadline=%d ttd=%d transit=%.0f → reposition to %s",
+                log_tag, lambda_val, urgency, duality_loss, day_idx, dist,
+                deadline_min, time_to_deadline, transit_min,
                 constraint.get("region_name", "?"),
             )
             stats["reposition_count"] += 1
             self._update_avg_score(stats, 0.0)
-            return self._capped_reposition(lat, lng, tlat, tlng)
-        return None
+            return self._capped_reposition(lat, lng, tlat, tlng), duality_loss
+        return None, duality_loss
 
     def _check_day_specific_location(
         self, driver_id: str, lat: float, lng: float, sim_min: int,
         day_idx: int, checker: PreferenceChecker, daily_stats: dict[str, Any],
         stats: dict[str, Any], sim_horizon: int = 43200,
     ) -> tuple[dict[str, Any] | None, float]:
-        """返回 (reposition_action, constraint_penalty)。"""
+        """返回 (reposition_action, duality_loss)。"""
         pending = checker.get_pending_requirements(daily_stats, sim_min, sim_horizon // 1440)
         for req in pending:
             if req.get("type") == "spatio_temporal_constraint":
-                action = self._solve_spatio_temporal(lat, lng, sim_min, day_idx, req, stats, "[TW_SOLVER]", pre_day=False)
-                penalty = req.get("penalty", 0.0)
-                return (action, penalty)
+                action, duality_loss = self._solve_spatio_temporal(
+                    lat, lng, sim_min, day_idx, req, stats, "[TW_SOLVER]", pre_day=False,
+                )
+                return (action, duality_loss)
         return (None, 0.0)
 
     def _check_pre_day_location(
@@ -544,8 +568,8 @@ class DecisionDispatcher:
         )
         for req in tomorrow_pending:
             if req.get("type") == "spatio_temporal_constraint":
-                result = self._solve_spatio_temporal(lat, lng, sim_min, day_idx, req, stats, "[TW_PRE_DAY]", pre_day=True)
-                if result:
+                result, _ = self._solve_spatio_temporal(lat, lng, sim_min, day_idx, req, stats, "[TW_PRE_DAY]", pre_day=True)
+                if result is not None:
                     return result
         return None
 
