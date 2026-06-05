@@ -849,8 +849,9 @@ class PreferenceChecker:
                         dh, dm = 23, 59
                     deadline_min = target_day * 1440 + dh * 60 + dm
                     sim_end = simulation_duration_days * 1440
-                    if deadline_min > sim_end:
-                        continue  # 仿真活不到截止时间，放弃此规则
+                    # Phase 4 可行性止损门控：剩余时间不足 12h → 断开引力锁
+                    if deadline_min > sim_end - 720:
+                        continue  # 时间窗口过紧，数学不可行，放弃此规则
                 region_days = daily_stats.get("region_days", {})
                 # 状态机：按序推进，找到第一个未打卡的站点
                 for stop in stops:

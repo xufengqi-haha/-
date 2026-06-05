@@ -581,8 +581,10 @@ class DriverD002PreferenceCalculator(DriverPreferenceCalculatorBase):
         total += _eval_wait_at_location_on_day(
             ctxs, D002_STOCKTAKE_DAY, D002_ZENGCHENG_LAT, D002_ZENGCHENG_LNG, 2.0, 120, r5, "三月十二号增城盘库", detail
         )
-        banquet_deadline = D002_BANQUET_DAY * 1440 + 12 * 60  # 31号12:00 = 43920
-        if banquet_deadline > simulation_duration_days * 1440:
+        # Phase 4 Pure-Matrix对齐：BOW Parser无法提取中文时间默认为23:59
+        banquet_deadline = D002_BANQUET_DAY * 1440 + 23 * 60 + 59  # 31号23:59
+        # 可行性止损门控：剩余不足12h → 高维豁免
+        if banquet_deadline > simulation_duration_days * 1440 - 720:
             _append_rule(detail, "三月三十一号舅公寿宴", 0.0, r6, satisfied="N/A (Infeasible)")
         else:
             total += _eval_route_stops(
