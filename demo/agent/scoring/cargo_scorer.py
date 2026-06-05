@@ -106,6 +106,13 @@ class CargoScorer:
 
         combined_heat_score = 0.4 * start_heat_score + 0.6 * dest_heat_score
 
+        # ★ V2 供需水位线：容量/运力比决定热度溢价或折价
+        arrival_hour = int((sim_progress_minutes + total_minutes) // 60) % 24
+        shadow_count = area_memory.get_shadow_count(dest_lat, dest_lng, arrival_hour) if area_memory else 0.0
+        capacity = area_memory.get_grid_capacity(dest_lat, dest_lng, arrival_hour) if area_memory else 2.0
+        supply_demand_ratio = capacity / (shadow_count + 1.0)
+        combined_heat_score *= min(1.0, supply_demand_ratio)
+
         # ★ 经济账公式：有效罚分 = 原始罚分 × γ（动态膨胀系数）
         effective_penalty = preference_penalty * gamma
         pref_penalty_score = max(0.0, 1.0 - effective_penalty / 5000.0)

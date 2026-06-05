@@ -581,16 +581,21 @@ class DriverD002PreferenceCalculator(DriverPreferenceCalculatorBase):
         total += _eval_wait_at_location_on_day(
             ctxs, D002_STOCKTAKE_DAY, D002_ZENGCHENG_LAT, D002_ZENGCHENG_LNG, 2.0, 120, r5, "三月十二号增城盘库", detail
         )
-        total += _eval_route_stops(
-            ctxs,
-            [
-                RouteStop(D002_BANQUET_DAY, D002_ZENGCHENG_LAT, D002_ZENGCHENG_LNG, 0, 12 * 60),
-                RouteStop(D002_BANQUET_DAY, D002_SIHUI_LAT, D002_SIHUI_LNG, 120, 12 * 60),
-            ],
-            r6,
-            "三月三十一号舅公寿宴",
-            detail,
-        )
+        banquet_deadline = D002_BANQUET_DAY * 1440 + 12 * 60  # 31号12:00 = 43920
+        if banquet_deadline > simulation_duration_days * 1440:
+            _append_rule(detail, "三月三十一号舅公寿宴", 0.0, r6, satisfied="N/A (Infeasible)")
+        else:
+            total += _eval_route_stops(
+                ctxs,
+                [
+                    RouteStop(D002_BANQUET_DAY, D002_ZENGCHENG_LAT, D002_ZENGCHENG_LNG, 0, 12 * 60),
+                    RouteStop(D002_BANQUET_DAY, D002_SIHUI_LAT, D002_SIHUI_LNG, 120, 12 * 60),
+                ],
+                r6,
+                "三月三十一号舅公寿宴",
+                detail,
+                radius_km=40.0,
+            )
         return round(total, 2), {"rules": detail}
 
 

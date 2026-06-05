@@ -144,7 +144,7 @@ class DecisionDispatcher:
         stats = self._decision_stats[driver_id]
 
         # ★ 提前计算 pending 和 driver_state（供 gamma 驱动休息检查使用）
-        pending_early = checker.get_pending_requirements(daily_stats, sim_min)
+        pending_early = checker.get_pending_requirements(daily_stats, sim_min, sim_horizon // 1440)
         driver_state = self._driver_state_tracker.update(
             driver_id, sim_min, daily_stats, pending_early, checker.rules,
         )
@@ -176,7 +176,7 @@ class DecisionDispatcher:
 
         # === Phase 2.5: 跨日预排 — 明天有day_specific_location且距离远 → 提前reposition ===
         if hour_of_day >= 18:
-            pre_day_action = self._check_pre_day_location(lat, lng, sim_min, day_idx, checker, stats)
+            pre_day_action = self._check_pre_day_location(lat, lng, sim_min, day_idx, checker, stats, sim_horizon)
             if pre_day_action is not None:
                 return self._risk_checker.validate(
                     pre_day_action, driver_id, sim_min, checker,
@@ -240,6 +240,17 @@ class DecisionDispatcher:
                             req.get("region"), gap,
                         )
                         break
+            # P3: route_stops 第二站强锁 — 只允许去往目标区域的货源
+            for req in pending_early:
+                if req.get("source_rule") == "route_stops" and req.get("action") == "go_to_location":
+                    target_region = req.get("region_name", "")
+                    if target_region:
+                        region_constraint = (target_region, True)
+                        self._logger.info(
+                            "[ROUTE_LOCK] route_stops locked to %s — noise cargo rejected",
+                            target_region,
+                        )
+                        break
 
         # === Phase 7: 过滤 + 评分 ===
         candidates = self._filter_and_score(
@@ -257,21 +268,35 @@ class DecisionDispatcher:
         scored = [c for c in candidates if c.total_score > 0.05]
         stats["total_decisions"] += 1
 
-        # === Phase 9: 日特定地点检查 ===
+        # === Phase 9: 日特定地点检查（含机会成本对赌） ===
         if self._config.preference_feedback["enable_cumulative_push"]:
-            day_action = self._check_day_specific_location(
-                driver_id, lat, lng, sim_min, day_idx, checker, daily_stats, stats
+            day_action, constraint_penalty = self._check_day_specific_location(
+                driver_id, lat, lng, sim_min, day_idx, checker, daily_stats, stats, sim_horizon
             )
             if day_action is not None:
-                return self._risk_checker.validate(
-                    day_action, driver_id, sim_min, checker,
-                    scored_candidates=scored, current_lat=lat, current_lng=lng,
-                )
+                # 机会成本对赌：如果 Top1 货源净利 > 违约罚分+额外成本，放弃位移
+                abandon = False
+                if scored and constraint_penalty > 0:
+                    best_cargo = scored[0]
+                    extra_cost = geo_utils.haversine_km(lat, lng, best_cargo.dest_lat, best_cargo.dest_lng) * 1.5
+                    if best_cargo.net_profit > (constraint_penalty + extra_cost):
+                        self._logger.info(
+                            "[BUSINESS_WAR] Abandoning constraint (penalty=%.0f) to secure "
+                            "premium cargo %s, net_profit=%.0f > %.0f",
+                            constraint_penalty, best_cargo.cargo_id,
+                            best_cargo.net_profit, constraint_penalty + extra_cost,
+                        )
+                        abandon = True
+                if not abandon:
+                    return self._risk_checker.validate(
+                        day_action, driver_id, sim_min, checker,
+                        scored_candidates=scored, current_lat=lat, current_lng=lng,
+                    )
 
         # === Phase 10: 无合格货源 ===
         if not scored:
             action = self._handle_no_cargo(
-                driver_id, lat, lng, sim_min, day_idx, checker, daily_stats, stats, cold_start
+                driver_id, lat, lng, sim_min, day_idx, checker, daily_stats, stats, cold_start, sim_horizon
             )
             return self._risk_checker.validate(
                 action, driver_id, sim_min, checker,
@@ -318,6 +343,10 @@ class DecisionDispatcher:
                 best.cargo_id, best.total_score, best.net_profit,
                 best.breakdown.get("profit_per_hour", 0),
             )
+            # ★ 影子运力意图宣告
+            finish_min = sim_min + best.total_minutes
+            arrival_hour = int(finish_min % 1440) // 60
+            self._area_memory.register_intent(best.dest_lat, best.dest_lng, arrival_hour)
             stats["take_order_count"] += 1
             self._update_avg_score(stats, best.total_score)
             action = self._make_take_order(best.cargo_id)
@@ -326,49 +355,18 @@ class DecisionDispatcher:
                 scored_candidates=scored, current_lat=lat, current_lng=lng,
             )
 
-        # === Phase 13: LLM 二选一 ===
-        llm_tiebreak_gap = self._config.decision_thresholds.get("llm_tiebreak_gap", 0.12)
-        llm_min_score = self._config.decision_thresholds.get("llm_min_score", 0.30)
-        if len(top3) >= 2 and best.total_score > 0 and top3[1].total_score > 0:
-            gap = (best.total_score - top3[1].total_score) / best.total_score if best.total_score > 0 else 0
-            llm_call_count = self._llm_call_counts[driver_id]
-
-            if (gap < llm_tiebreak_gap
-                    and best.total_score > llm_min_score
-                    and llm_call_count < self._max_llm_calls_per_driver):
-                self._logger.info(
-                    "close call gap=%.3f top2=(%s,%.4f) (%s,%.4f) → LLM tiebreak (calls=%d/%d)",
-                    gap, best.cargo_id, best.total_score,
-                    top3[1].cargo_id, top3[1].total_score,
-                    llm_call_count, self._max_llm_calls_per_driver,
-                )
-                llm_result = self._llm_tiebreak(driver_id, status, top3[:2], checker, sim_min)
-                self._llm_call_counts[driver_id] += 1
-                stats["llm_tiebreak_count"] += 1
-
-                if llm_result is not None:
-                    if llm_result["action"] == "take_order":
-                        stats["take_order_count"] += 1
-                        chosen_cargo_id = (llm_result.get("params") or {}).get("cargo_id", "")
-                        for cs in top3[:2]:
-                            if cs.cargo_id == chosen_cargo_id:
-                                self._update_avg_score(stats, cs.total_score)
-                                break
-                    elif llm_result["action"] == "wait":
-                        stats["wait_count"] += 1
-                        self._update_avg_score(stats, 0.0)
-                    return self._risk_checker.validate(
-                        llm_result, driver_id, sim_min, checker,
-                        scored_candidates=scored, current_lat=lat, current_lng=lng,
-                    )
-                else:
-                    stats["llm_fallback_count"] += 1
+        # === Phase 13: 确定性最高分（LLM tiebreak 已退役） ===
+        # 原 LLM 二选一逻辑已关闭，改为直接取最高分，消除运行时 Token 消耗
 
         # === Phase 14: 默认最高分 ===
         self._logger.info(
             "rule-based decision cargo_id=%s score=%.4f net_profit=%.1f",
             best.cargo_id, best.total_score, best.net_profit,
         )
+        # ★ 影子运力意图宣告：向全网广播本车的目的地占坑
+        finish_min = sim_min + best.total_minutes
+        arrival_hour = int(finish_min % 1440) // 60
+        self._area_memory.register_intent(best.dest_lat, best.dest_lng, arrival_hour)
         stats["take_order_count"] += 1
         self._update_avg_score(stats, best.total_score)
         action = self._make_take_order(best.cargo_id)
@@ -472,27 +470,6 @@ class DecisionDispatcher:
                 len(boost_reqs), day_idx,
             )
 
-    def _find_safe_location(
-        self, lat: float, lng: float, checker: PreferenceChecker, sim_min: int
-    ) -> tuple[float, float] | None:
-        """找到最近的不在day_specific_avoid禁区内的城市坐标。"""
-        day_idx = sim_min // 1440
-        forbidden_regions: set[str] = set()
-        for rule in checker.rules:
-            if rule.rule_type == "day_specific_avoid":
-                if day_idx in rule.params.get("days", []):
-                    forbidden_regions.add(str(rule.params.get("region", "")))
-        best_coord = None
-        best_dist = float("inf")
-        for name, coord in REGION_COORDINATES.items():
-            if any(fr in name for fr in forbidden_regions):
-                continue
-            d = geo_utils.haversine_km(lat, lng, coord[0], coord[1])
-            if d < best_dist:
-                best_dist = d
-                best_coord = coord
-        return best_coord
-
     def _city_at(self, lat: float, lng: float) -> str:
         best_city = ""
         best_dist = float("inf")
@@ -505,64 +482,71 @@ class DecisionDispatcher:
 
     # ── 日特定地点检查 ──────────────────────────────────────────────
 
-    def _check_day_specific_location(
-        self,
-        driver_id: str,
-        lat: float,
-        lng: float,
-        sim_min: int,
-        day_idx: int,
-        checker: PreferenceChecker,
-        daily_stats: dict[str, Any],
-        stats: dict[str, Any],
+    # ── 通用时空约束求解器 ──────────────────────────────────────────
+
+    def _solve_spatio_temporal(
+        self, lat: float, lng: float, sim_min: int, day_idx: int,
+        constraint: dict[str, Any], stats: dict[str, Any], log_tag: str,
+        pre_day: bool = False,
     ) -> dict[str, Any] | None:
-        pending = checker.get_pending_requirements(daily_stats, sim_min)
-        for req in pending:
-            if req.get("rule_type") == "day_specific_location" and req.get("action") == "go_to_location":
-                target_lat = req.get("lat")
-                target_lng = req.get("lng")
-                if target_lat is not None and target_lng is not None:
-                    dist = geo_utils.haversine_km(lat, lng, target_lat, target_lng)
-                    if dist > 3:
-                        self._logger.info(
-                            "[PREF_PUSH] day_specific_location day=%d → reposition to %s (%.1fkm)",
-                            day_idx, req.get("region_name", "?"), dist,
-                        )
-                        stats["reposition_count"] += 1
-                        self._update_avg_score(stats, 0.0)
-                        return self._capped_reposition(lat, lng, target_lat, target_lng)
+        """通用 TW-Solver：输入标准时空约束，判断是否需立即 Reposition。"""
+        tlat = constraint.get("lat")
+        tlng = constraint.get("lng")
+        if not (tlat and tlng):
+            return None
+        deadline_min = constraint.get("deadline_min", (day_idx + 1) * 1440)
+        dist = geo_utils.haversine_km(lat, lng, tlat, tlng)
+        if dist < 3:
+            return None  # 已在目标地 3km 内
+
+        transit_min = (dist / 60.0) * 60
+        time_to_deadline = deadline_min - sim_min
+        safety_buffer = 120
+
+        urgent = time_to_deadline - transit_min < safety_buffer
+        far_away = dist > 50 and pre_day  # 跨日预排：距离远则提前位移
+
+        if urgent or far_away:
+            self._logger.info(
+                "%s day=%d dist=%.1fkm deadline=%d ttd=%d transit=%.0f → reposition to %s",
+                log_tag, day_idx, dist, deadline_min, time_to_deadline, transit_min,
+                constraint.get("region_name", "?"),
+            )
+            stats["reposition_count"] += 1
+            self._update_avg_score(stats, 0.0)
+            return self._capped_reposition(lat, lng, tlat, tlng)
         return None
 
-    # ── 跨日预排检查 ──────────────────────────────────────────────
+    def _check_day_specific_location(
+        self, driver_id: str, lat: float, lng: float, sim_min: int,
+        day_idx: int, checker: PreferenceChecker, daily_stats: dict[str, Any],
+        stats: dict[str, Any], sim_horizon: int = 43200,
+    ) -> tuple[dict[str, Any] | None, float]:
+        """返回 (reposition_action, constraint_penalty)。"""
+        pending = checker.get_pending_requirements(daily_stats, sim_min, sim_horizon // 1440)
+        for req in pending:
+            if req.get("type") == "spatio_temporal_constraint":
+                action = self._solve_spatio_temporal(lat, lng, sim_min, day_idx, req, stats, "[TW_SOLVER]", pre_day=False)
+                penalty = req.get("penalty", 0.0)
+                return (action, penalty)
+        return (None, 0.0)
 
     def _check_pre_day_location(
-        self,
-        lat: float,
-        lng: float,
-        sim_min: int,
-        day_idx: int,
-        checker: PreferenceChecker,
-        stats: dict[str, Any],
+        self, lat: float, lng: float, sim_min: int, day_idx: int,
+        checker: PreferenceChecker, stats: dict[str, Any],
+        sim_horizon: int = 43200,
     ) -> dict[str, Any] | None:
-        """检查明天是否有day_specific_location，提前reposition靠近目标。"""
+        """跨日预排：提前 reposition 靠近明天的时空约束目标。"""
         tomorrow_pending = checker.get_pending_requirements(
             {"daily_active": {}, "off_days": 0, "region_days": {}, "daily_rest_max": {}},
             sim_min + 1440,
+            sim_horizon // 1440,
         )
         for req in tomorrow_pending:
-            if req.get("rule_type") == "day_specific_location" and req.get("action") == "go_to_location":
-                tlat = req.get("lat")
-                tlng = req.get("lng")
-                if tlat and tlng:
-                    dist = geo_utils.haversine_km(lat, lng, tlat, tlng)
-                    if dist > 30:
-                        self._logger.info(
-                            "[PRE_DAY] tomorrow day=%d needs %s, %.1fkm away → reposition",
-                            day_idx + 1, req.get("region_name", "?"), dist,
-                        )
-                        stats["reposition_count"] += 1
-                        self._update_avg_score(stats, 0.0)
-                        return self._capped_reposition(lat, lng, tlat, tlng)
+            if req.get("type") == "spatio_temporal_constraint":
+                result = self._solve_spatio_temporal(lat, lng, sim_min, day_idx, req, stats, "[TW_PRE_DAY]", pre_day=True)
+                if result:
+                    return result
         return None
 
     # ── 强制休息检查 ────────────────────────────────────────────────
@@ -687,10 +671,22 @@ class DecisionDispatcher:
             day = time_utils.sim_min_to_day(action_start)
 
             if action_name == "wait" and action_exec > 0:
-                daily_rest_max[day] = max(daily_rest_max.get(day, 0), action_exec)
+                cur_rest = action_start
+                while cur_rest < action_end:
+                    d_idx = cur_rest // 1440
+                    d_end = (d_idx + 1) * 1440
+                    chunk_rest = min(d_end, action_end) - cur_rest
+                    daily_rest_max[d_idx] = max(daily_rest_max.get(d_idx, 0), chunk_rest)
+                    cur_rest = d_end
 
             if action_name in ("take_order", "reposition"):
-                daily_active[day] = daily_active.get(day, 0) + action_exec
+                cur = action_start
+                while cur < action_end:
+                    day_idx = cur // 1440
+                    day_end = (day_idx + 1) * 1440
+                    chunk = min(day_end, action_end) - cur
+                    daily_active[day_idx] = daily_active.get(day_idx, 0) + chunk
+                    cur = day_end
                 if action_name == "take_order" and bool(result.get("accepted", False)):
                     for region_name in COMMON_REGION_NAMES:
                         if near_region(pos_before, region_name) or near_region(pos_after, region_name):
@@ -724,6 +720,7 @@ class DecisionDispatcher:
         daily_stats: dict[str, Any] | None = None,
     ) -> list[CargoScore]:
         import math
+        from datetime import datetime
         month_end = 31 * 1440
         scored: list[CargoScore] = []
         for item in items:
@@ -738,6 +735,17 @@ class DecisionDispatcher:
                 continue
 
             if pickup_km > self._config.filters["max_pickup_km"]:
+                continue
+
+            # ★ P0: day_specific_avoid 目的地坐标级硬过滤
+            dest_lat = float((cargo.get("end") or {}).get("lat", 0))
+            dest_lng = float((cargo.get("end") or {}).get("lng", 0))
+            is_avoid, _, _ = checker.check_position_day_avoid(dest_lat, dest_lng, sim_min)
+            if is_avoid:
+                self._logger.debug(
+                    "hard filter: cargo=%s destination falls into day_specific_avoid zone",
+                    cargo.get("cargo_id"),
+                )
                 continue
 
             # 偏好合规检查（per-rule gamma加权）
@@ -762,9 +770,19 @@ class DecisionDispatcher:
                 penalty += transit_penalty
                 violations.extend(transit_violations)
 
-            dest_lat = float((cargo.get("end") or {}).get("lat", 0))
-            dest_lng = float((cargo.get("end") or {}).get("lng", 0))
-            total_minutes_est = pickup_min + cost_time + 30  # +30min卸货缓冲
+            load_wait = 0
+            load_time = cargo.get("load_time")
+            if isinstance(load_time, list) and len(load_time) == 2:
+                try:
+                    start_str = str(load_time[0]).strip()
+                    start_dt = datetime.strptime(start_str, "%Y-%m-%d %H:%M:%S")
+                    load_start_min = int((start_dt - time_utils.SIMULATION_EPOCH).total_seconds() // 60)
+                    arrival = sim_min + pickup_min
+                    if arrival < load_start_min:
+                        load_wait = load_start_min - arrival
+                except (ValueError, KeyError):
+                    pass
+            total_minutes_est = pickup_min + cost_time + load_wait + 30  # +30min卸货缓冲
 
             # ★ daily_rest软惩罚：订单导致当天无法8h休息 → penalty×1.3
             if daily_stats is not None:
@@ -777,13 +795,50 @@ class DecisionDispatcher:
                             continue
                         longest = daily_rest_max_chk.get(day_idx_for_check, 0)
                         deficit = min_h * 60 - longest
-                        if deficit < 60:  # 缺口>1h触发
+                        if deficit < 120:  # 只有缺口>2h才触发
                             continue
                         minutes_left = time_utils.minutes_until_next_day(sim_min)
                         if total_minutes_est + deficit > minutes_left:
-                            penalty *= 2.5
+                            penalty *= 1.3
                         break
             finish_min = sim_min + total_minutes_est
+
+            # ★ P0: Cross-Day DailyRest Feasibility Check — 防止跨天单导致次日无法休满
+            skip_for_daily_rest = False
+            if daily_stats is not None:
+                cur_day = sim_min // 1440
+                finish_day = finish_min // 1440
+                if finish_day > cur_day:
+                    for rule in checker.rules:
+                        if rule.rule_type == "daily_rest":
+                            min_h = int(rule.params.get("min_hours", 0))
+                            if min_h <= 0:
+                                continue
+                            need_rest = min_h * 60
+                            blocked = False
+                            blocked_day = finish_day
+                            for d in range(cur_day + 1, finish_day + 1):
+                                day_longest = daily_stats.get("daily_rest_max", {}).get(d, 0)
+                                if day_longest >= need_rest:
+                                    continue
+                                if d < finish_day:
+                                    blocked = True
+                                    blocked_day = d
+                                else:
+                                    remaining_next = 1440 - (finish_min % 1440)
+                                    if remaining_next < need_rest:
+                                        blocked = True
+                            if blocked:
+                                skip_for_daily_rest = True
+                                self._logger.info(
+                                    "P0 reject: cross-day daily_rest infeasible "
+                                    "blocked_day=%d finish_day=%d need=%d cargo=%s",
+                                    blocked_day, finish_day, need_rest,
+                                    cargo.get("cargo_id"),
+                                )
+                            break
+            if skip_for_daily_rest:
+                continue
 
             # ★ P0: 全链路完单时间预判 — 防止完单跨入rest_window
             skip_for_rest = False
@@ -864,7 +919,7 @@ class DecisionDispatcher:
             pickup_km = float(item.get("distance_km", 0) or 0)
             if pickup_km > self._config.filters["max_pickup_km"]:
                 continue
-            penalty, _ = checker.check_cargo(cargo, pickup_km, sim_min)
+            penalty, _ = checker.check_cargo_weighted(cargo, pickup_km, sim_min, driver_state=None)
             if checker.hard_forbidden(cargo, pickup_km, sim_min):
                 continue
             s = self._scorer.score(cargo, pickup_km, sim_min, self._area_memory, preference_penalty=penalty)
@@ -886,12 +941,13 @@ class DecisionDispatcher:
         daily_stats: dict[str, Any],
         stats: dict[str, Any],
         cold_start: bool = False,
+        sim_horizon: int = 43200,
     ) -> dict[str, Any]:
         hour_of_day = time_utils.sim_min_to_hour_of_day(sim_min)
         daily_rest_max = daily_stats.get("daily_rest_max", {})
 
         # 策略0：日特定地点
-        pending = checker.get_pending_requirements(daily_stats, sim_min)
+        pending = checker.get_pending_requirements(daily_stats, sim_min, sim_horizon // 1440)
         for req in pending:
             if req.get("rule_type") == "day_specific_location" and req.get("action") == "go_to_location":
                 target_lat = req.get("lat")

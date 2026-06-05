@@ -38,21 +38,6 @@ def distance_to_minutes(distance_km: float, speed_km_per_hour: float = 60.0) -> 
     return max(1, math.ceil((distance_km / speed_km_per_hour) * 60.0))
 
 
-def in_bounding_box(
-    lat: float,
-    lng: float,
-    lat_min: float,
-    lat_max: float,
-    lng_min: float,
-    lng_max: float,
-) -> bool:
-    return lat_min <= lat <= lat_max and lng_min <= lng <= lng_max
-
-
-def midpoint(lat1: float, lng1: float, lat2: float, lng2: float) -> tuple[float, float]:
-    return ((lat1 + lat2) / 2.0, (lng1 + lng2) / 2.0)
-
-
 # 统一区域坐标字典（dispatcher 和 preference_scorer 共用）
 REGION_COORDINATES: dict[str, tuple[float, float]] = {
     "深圳": (22.54, 114.06),
@@ -70,11 +55,6 @@ REGION_COORDINATES: dict[str, tuple[float, float]] = {
 
 # 常用区域名称列表（用于遍历检查）
 COMMON_REGION_NAMES = ["增城", "深圳", "惠州", "广州", "东莞", "佛山", "中山", "四会"]
-
-
-def region_center(name: str) -> tuple[float, float] | None:
-    """获取区域中心坐标。"""
-    return REGION_COORDINATES.get(name)
 
 
 def near_region(pos: dict[str, Any], region_name: str, radius_km: float = 30.0) -> bool:

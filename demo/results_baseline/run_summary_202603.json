@@ -1,0 +1,27 @@
+{
+  "month": "2026-03",
+  "simulate_time_seconds": 46.95,
+  "simulation_duration_days": 30,
+  "completed_steps": 211,
+  "remaining_cargo_count": 16894,
+  "driver_completed_steps": {
+    "D001": 67,
+    "D002": 144
+  },
+  "driver_result_files": {
+    "D001": "F:\\天池大赛\\demo_docs_release_20260529\\demo\\results\\actions_202603_D001_20260604_143452.jsonl",
+    "D002": "F:\\天池大赛\\demo_docs_release_20260529\\demo\\results\\actions_202603_D002_20260604_143452.jsonl"
+  },
+  "simulation_max_steps_per_driver": 20000,
+  "driver_max_total_tokens": 5000000,
+  "driver_token_usage": {
+    "D001": 0,
+    "D002": 2783
+  },
+  "driver_token_limit_stopped": {},
+  "driver_end_reasons": {
+    "D001": "normal",
+    "D002": "normal"
+  },
+  "driver_simulation_failures": {}
+}
