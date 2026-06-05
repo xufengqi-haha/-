@@ -15,8 +15,8 @@ from agent.utils.geo_utils import grid_key, haversine_km
 # 势场衰减系数
 _SPATIAL_BANDWIDTH_KM = 30.0    # 空间衰减带宽：30km 外势能衰减至 ~37%
 _TEMPORAL_BANDWIDTH_H = 2.0     # 时间衰减带宽：±2h 外势能衰减至 ~37%
-_NEIGHBOR_WEIGHT = 0.35          # 相邻网格势能传导权重
-_TEMPORAL_NEIGHBOR_WEIGHT = 0.45  # 相邻时段势能传导权重
+_NEIGHBOR_WEIGHT = 0.10          # 相邻网格势能传导权重（收拢泄漏，防背景泛滥）
+_TEMPORAL_NEIGHBOR_WEIGHT = 0.20  # 相邻时段势能传导权重（聚焦核心时段）
 
 
 def _neighbor_keys(lat: float, lng: float, resolution: float) -> list[str]:

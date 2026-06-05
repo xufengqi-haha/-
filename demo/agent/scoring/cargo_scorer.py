@@ -115,7 +115,7 @@ class CargoScorer:
         # 其中 Φ 为 Markov 势场在该网格该时段的运力堆积势能。
         #   势能越高（运力越拥挤）→ 分母越大 → 热度被自然压低
         #   势能越低（运力空缺）→ 分母趋近 1.0 → 热度原值保留，自发吸引司机
-        ALPHA = 0.3
+        ALPHA = 0.18
         arrival_hour = int((sim_progress_minutes + total_minutes) // 60) % 24
         potential_energy = area_memory.get_potential_energy(dest_lat, dest_lng, arrival_hour) if area_memory else 0.0
         combined_heat_score = combined_heat_score / (1.0 + ALPHA * math.sqrt(max(0.0, potential_energy)))
