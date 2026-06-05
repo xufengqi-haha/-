@@ -1,0 +1,138 @@
+{
+  "month": "2026-03",
+  "simulate_time_seconds": 46.95,
+  "result_files_count": 2,
+  "drivers": [
+    {
+      "driver_id": "D001",
+      "income": {
+        "gross_income": 30483.2,
+        "distance_km": 8443.24,
+        "cost": 12664.86,
+        "preference_penalty": 11000.0,
+        "net_income": 6818.34
+      },
+      "token_usage": {
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "reasoning_tokens": 0,
+        "total_tokens": 0
+      },
+      "calculation_aborted": false,
+      "validation_error": null,
+      "preference_check": {
+        "rules": [
+          {
+            "rule": "每日连续休息≥8小时",
+            "penalty": 7200.0,
+            "preference_text": "我这人熬不住连轴转，每天至少连续停车熄火休息满8小时。",
+            "violations": 3
+          },
+          {
+            "rule": "禁接机械设备",
+            "penalty": 0,
+            "preference_text": "接过两次龙门吊底座、机床铸件，死沉还容易砸坏挡板，机械设备这类活儿我干不了，每接一次都要扣钱。",
+            "violations": 0
+          },
+          {
+            "rule": "不接惠州货源",
+            "penalty": 800.0,
+            "preference_text": "惠州那一路我熟也怕，装货地或卸货地在惠州的货，我一律不接，每接一次都要扣钱。",
+            "violations": 1
+          },
+          {
+            "rule": "每月至少3整天休息",
+            "penalty": 0.0,
+            "preference_text": "爹妈在老家盼着，三月怎么也得抽三个整天完全歇着（00:00~24:00，车处于静止状态），回去陪陪二老。",
+            "off_days": 3
+          },
+          {
+            "rule": "三四号不进深圳",
+            "penalty": 3000.0,
+            "preference_text": "三月四号五号交警在深圳查车，这天我不往深圳跑，也别给我派进去那边的货。",
+            "violations": 1
+          }
+        ]
+      }
+    },
+    {
+      "driver_id": "D002",
+      "income": {
+        "gross_income": 28153.14,
+        "distance_km": 7324.44,
+        "cost": 10986.66,
+        "preference_penalty": 9080.0,
+        "net_income": 8086.48
+      },
+      "token_usage": {
+        "prompt_tokens": 272,
+        "completion_tokens": 2511,
+        "reasoning_tokens": 2445,
+        "total_tokens": 2783
+      },
+      "calculation_aborted": false,
+      "validation_error": null,
+      "preference_check": {
+        "rules": [
+          {
+            "rule": "每日0–6点休息",
+            "penalty": 3600.0,
+            "preference_text": "零点以后到早上六点这段我得睡觉，车得停着熄火，雷打不动。",
+            "violations": 2
+          },
+          {
+            "rule": "禁接蔬菜",
+            "penalty": 0,
+            "preference_text": "蔬菜几分钱一斤的路一颠就烂，赔不起损耗，凡是蔬菜货源我一律推掉，每接一次都扣钱。",
+            "violations": 0
+          },
+          {
+            "rule": "月度增城≥4日",
+            "penalty": 0.0,
+            "preference_text": "我在广州市增城区有家老档口（23.15，113.67）要照应，自然月里装货或卸货在增城的货，起码得接够四个不同的日子，同一天几单也只算一天。",
+            "order_days": 4
+          },
+          {
+            "rule": "赴装货空驶≤55km",
+            "penalty": 480.0,
+            "preference_text": "看好了单子再动身，接单后赶去装货那一程，空驶超过五十五公里我就不想接，超一次扣120。",
+            "violations": 4
+          },
+          {
+            "rule": "每月至少2整天休息",
+            "penalty": 0.0,
+            "preference_text": "这月得进修理厂做保养，起码留两个整天停驶检修，那天别给我排活。",
+            "off_days": 2
+          },
+          {
+            "rule": "三月十二号增城盘库",
+            "penalty": 0.0,
+            "preference_text": "三月十二号增城老档口清库存，当天得到增城区停一趟，花两小时把数目对清楚。",
+            "satisfied": true,
+            "waited_minutes": 299
+          },
+          {
+            "rule": "三月三十一号舅公寿宴",
+            "penalty": 5000.0,
+            "preference_text": "三月三十一号舅公做寿，上午得先过增城区档口捎上寿礼，中午十二点前赶到四会县城（23.32，112.83）赴宴到下午两点。",
+            "satisfied": false
+          }
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "total_net_income_all_drivers": 14904.82,
+    "total_preference_penalty": 20080.0,
+    "total_token_usage": {
+      "prompt_tokens": 272,
+      "completion_tokens": 2511,
+      "reasoning_tokens": 2445,
+      "total_tokens": 2783
+    },
+    "failed_driver_count": 0,
+    "failed_drivers": {}
+  },
+  "cost_meaning": "cost = distance_km * cost_per_km",
+  "cost_metric": "net_income = gross_income - cost - preference_penalty"
+}

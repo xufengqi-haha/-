@@ -1,0 +1,1093 @@
+2026-06-04 14:34:41,865 INFO [bench.evaluation_runner] evaluation begin config=default max_steps=(config)
+2026-06-04 14:35:04,500 INFO [agent.preference_parser] Parsed preference: type=daily_rest, penalty=2400, content=我这人熬不住连轴转，每天至少连续停车熄火休息满8小时。
+2026-06-04 14:35:04,500 INFO [agent.preference_parser] Parsed preference: type=forbidden_category, penalty=2100, content=接过两次龙门吊底座、机床铸件，死沉还容易砸坏挡板，机械设备这类活儿我干不了，每接一次都要扣钱。
+2026-06-04 14:35:04,500 INFO [agent.preference_parser] Parsed preference: type=forbidden_region_cargo, penalty=800, content=惠州那一路我熟也怕，装货地或卸货地在惠州的货，我一律不接，每接一次都要扣钱。
+2026-06-04 14:35:04,500 INFO [agent.preference_parser] Parsed preference: type=off_days, penalty=10000, content=爹妈在老家盼着，三月怎么也得抽三个整天完全歇着（00:00~24:00，车处于静止状态），回去陪陪二
+2026-06-04 14:35:04,500 INFO [agent.dispatcher] preferences parsed driver=D001 rules=[('daily_rest', {'min_hours': 8}), ('forbidden_category', {'categories': ['机械设备', '机械', '机床', '铸件', '龙门吊', '底座'], 'keyword': '机械设备'}), ('forbidden_region_cargo', {'region': '惠州'}), ('off_days', {'min_days': 3})]
+2026-06-04 14:35:04,500 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=0 returned=0
+2026-06-04 14:35:04,500 INFO [agent.dispatcher] [GAMMA] off_days gamma=6.2 forcing full rest day 0 (1440min)
+2026-06-04 14:35:04,500 INFO [agent.decision_service] decision driver=D001 action=wait params={'duration_minutes': 1440}
+2026-06-04 14:35:04,500 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=wait params={"duration_minutes":1440} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,514 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=1 returned=1
+2026-06-04 14:35:04,514 INFO [agent.dispatcher] [REST] mandatory rest 480min day=1
+2026-06-04 14:35:04,514 INFO [agent.decision_service] decision driver=D001 action=wait params={'duration_minutes': 480}
+2026-06-04 14:35:04,514 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=wait params={"duration_minutes":480} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,516 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=2 returned=2
+2026-06-04 14:35:04,516 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D001 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:04,516 INFO [agent.dispatcher] rule-based decision cargo_id=310196 score=0.1698 net_profit=556.3
+2026-06-04 14:35:04,516 INFO [agent.decision_service] decision driver=D001 action=take_order params={'cargo_id': '310196'}
+2026-06-04 14:35:04,516 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=take_order params={"cargo_id":"310196"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,531 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=3 returned=3
+2026-06-04 14:35:04,542 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D001 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:04,556 INFO [agent.dispatcher] clear winner cargo_id=231941 score=0.2470 net_profit=1147.5 profit_per_hour=71.9
+2026-06-04 14:35:04,556 INFO [agent.decision_service] decision driver=D001 action=take_order params={'cargo_id': '231941'}
+2026-06-04 14:35:04,556 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=take_order params={"cargo_id":"231941"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,556 INFO [agent.preference_parser] Parsed preference: type=daily_rest, penalty=2400, content=我这人熬不住连轴转，每天至少连续停车熄火休息满8小时。
+2026-06-04 14:35:04,556 INFO [agent.preference_parser] Parsed preference: type=forbidden_category, penalty=2100, content=接过两次龙门吊底座、机床铸件，死沉还容易砸坏挡板，机械设备这类活儿我干不了，每接一次都要扣钱。
+2026-06-04 14:35:04,563 INFO [agent.preference_parser] Parsed preference: type=forbidden_region_cargo, penalty=800, content=惠州那一路我熟也怕，装货地或卸货地在惠州的货，我一律不接，每接一次都要扣钱。
+2026-06-04 14:35:04,563 INFO [agent.preference_parser] Parsed preference: type=off_days, penalty=10000, content=爹妈在老家盼着，三月怎么也得抽三个整天完全歇着（00:00~24:00，车处于静止状态），回去陪陪二
+2026-06-04 14:35:04,563 INFO [agent.preference_parser] Parsed preference: type=day_specific_avoid, penalty=3000, content=三月四号五号交警在深圳查车，这天我不往深圳跑，也别给我派进去那边的货。
+2026-06-04 14:35:04,563 INFO [agent.dispatcher] preferences parsed driver=D001 rules=[('daily_rest', {'min_hours': 8}), ('forbidden_category', {'categories': ['机械设备', '机械', '机床', '铸件', '龙门吊', '底座'], 'keyword': '机械设备'}), ('forbidden_region_cargo', {'region': '惠州'}), ('off_days', {'min_days': 3}), ('day_specific_avoid', {'days': [3, 4], 'region': '深圳'})]
+2026-06-04 14:35:04,563 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=4 returned=4
+2026-06-04 14:35:04,563 INFO [agent.dispatcher] [REST] mandatory rest 480min day=2
+2026-06-04 14:35:04,563 INFO [agent.decision_service] decision driver=D001 action=wait params={'duration_minutes': 480}
+2026-06-04 14:35:04,563 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=wait params={"duration_minutes":480} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,565 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=5 returned=5
+2026-06-04 14:35:04,565 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D001 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:04,587 INFO [agent.dispatcher] rule-based decision cargo_id=241833 score=0.2347 net_profit=745.5
+2026-06-04 14:35:04,587 INFO [agent.decision_service] decision driver=D001 action=take_order params={'cargo_id': '241833'}
+2026-06-04 14:35:04,587 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=take_order params={"cargo_id":"241833"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,591 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=6 returned=6
+2026-06-04 14:35:04,591 INFO [agent.dispatcher] [REST] mandatory rest 480min day=3
+2026-06-04 14:35:04,591 INFO [agent.decision_service] decision driver=D001 action=wait params={'duration_minutes': 480}
+2026-06-04 14:35:04,591 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=wait params={"duration_minutes":480} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,597 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=7 returned=7
+2026-06-04 14:35:04,601 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D001 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:04,607 INFO [agent.dispatcher] rule-based decision cargo_id=323889 score=0.1647 net_profit=1038.7
+2026-06-04 14:35:04,607 INFO [agent.decision_service] decision driver=D001 action=take_order params={'cargo_id': '323889'}
+2026-06-04 14:35:04,607 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=take_order params={"cargo_id":"323889"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,613 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=8 returned=8
+2026-06-04 14:35:04,613 INFO [agent.dispatcher] [REST] mandatory rest 480min day=4
+2026-06-04 14:35:04,613 INFO [agent.decision_service] decision driver=D001 action=wait params={'duration_minutes': 480}
+2026-06-04 14:35:04,613 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=wait params={"duration_minutes":480} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,619 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=9 returned=9
+2026-06-04 14:35:04,623 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D001 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:04,635 INFO [agent.dispatcher] rule-based decision cargo_id=260341 score=0.2560 net_profit=1173.9
+2026-06-04 14:35:04,635 INFO [agent.decision_service] decision driver=D001 action=take_order params={'cargo_id': '260341'}
+2026-06-04 14:35:04,637 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=take_order params={"cargo_id":"260341"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,642 INFO [agent.preference_parser] Parsed preference: type=daily_rest, penalty=2400, content=我这人熬不住连轴转，每天至少连续停车熄火休息满8小时。
+2026-06-04 14:35:04,642 INFO [agent.preference_parser] Parsed preference: type=forbidden_category, penalty=2100, content=接过两次龙门吊底座、机床铸件，死沉还容易砸坏挡板，机械设备这类活儿我干不了，每接一次都要扣钱。
+2026-06-04 14:35:04,642 INFO [agent.preference_parser] Parsed preference: type=forbidden_region_cargo, penalty=800, content=惠州那一路我熟也怕，装货地或卸货地在惠州的货，我一律不接，每接一次都要扣钱。
+2026-06-04 14:35:04,642 INFO [agent.preference_parser] Parsed preference: type=off_days, penalty=10000, content=爹妈在老家盼着，三月怎么也得抽三个整天完全歇着（00:00~24:00，车处于静止状态），回去陪陪二
+2026-06-04 14:35:04,642 INFO [agent.dispatcher] preferences parsed driver=D001 rules=[('daily_rest', {'min_hours': 8}), ('forbidden_category', {'categories': ['机械设备', '机械', '机床', '铸件', '龙门吊', '底座'], 'keyword': '机械设备'}), ('forbidden_region_cargo', {'region': '惠州'}), ('off_days', {'min_days': 3})]
+2026-06-04 14:35:04,642 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=10 returned=10
+2026-06-04 14:35:04,642 INFO [agent.dispatcher] [REST] mandatory rest 480min day=5
+2026-06-04 14:35:04,642 INFO [agent.decision_service] decision driver=D001 action=wait params={'duration_minutes': 480}
+2026-06-04 14:35:04,642 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=wait params={"duration_minutes":480} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,649 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=11 returned=11
+2026-06-04 14:35:04,649 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D001 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:04,658 INFO [agent.dispatcher] rule-based decision cargo_id=30425 score=0.2483 net_profit=689.7
+2026-06-04 14:35:04,658 INFO [agent.decision_service] decision driver=D001 action=take_order params={'cargo_id': '30425'}
+2026-06-04 14:35:04,658 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=take_order params={"cargo_id":"30425"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,658 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=12 returned=12
+2026-06-04 14:35:04,658 INFO [agent.dispatcher] [REST] mandatory rest 480min day=6
+2026-06-04 14:35:04,658 INFO [agent.decision_service] decision driver=D001 action=wait params={'duration_minutes': 480}
+2026-06-04 14:35:04,658 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=wait params={"duration_minutes":480} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,674 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=13 returned=13
+2026-06-04 14:35:04,674 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D001 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:04,681 INFO [agent.dispatcher] rule-based decision cargo_id=268553 score=0.2104 net_profit=939.3
+2026-06-04 14:35:04,681 INFO [agent.decision_service] decision driver=D001 action=take_order params={'cargo_id': '268553'}
+2026-06-04 14:35:04,681 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=take_order params={"cargo_id":"268553"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,681 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=14 returned=14
+2026-06-04 14:35:04,690 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D001 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:04,690 INFO [agent.dispatcher] rule-based decision cargo_id=267312 score=0.1903 net_profit=55.0
+2026-06-04 14:35:04,690 INFO [agent.decision_service] decision driver=D001 action=take_order params={'cargo_id': '267312'}
+2026-06-04 14:35:04,690 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=take_order params={"cargo_id":"267312"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,690 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=15 returned=15
+2026-06-04 14:35:04,690 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D001 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:04,690 INFO [agent.dispatcher] rule-based decision cargo_id=342668 score=0.1850 net_profit=-241.2
+2026-06-04 14:35:04,690 INFO [agent.decision_service] decision driver=D001 action=take_order params={'cargo_id': '342668'}
+2026-06-04 14:35:04,690 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=take_order params={"cargo_id":"342668"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,706 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=16 returned=16
+2026-06-04 14:35:04,706 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D001 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:04,723 INFO [agent.dispatcher] rule-based decision cargo_id=45940 score=0.2684 net_profit=1134.5
+2026-06-04 14:35:04,723 INFO [agent.decision_service] decision driver=D001 action=take_order params={'cargo_id': '45940'}
+2026-06-04 14:35:04,723 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=take_order params={"cargo_id":"45940"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,723 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=17 returned=17
+2026-06-04 14:35:04,723 INFO [agent.dispatcher] [REST] mandatory rest 480min day=8
+2026-06-04 14:35:04,723 INFO [agent.decision_service] decision driver=D001 action=wait params={'duration_minutes': 480}
+2026-06-04 14:35:04,723 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=wait params={"duration_minutes":480} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,738 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=18 returned=18
+2026-06-04 14:35:04,738 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D001 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:04,753 INFO [agent.opportunity] [OPPORTUNITY] reposition recommended: reposition_gain=907yuan > cost=448yuan*1.3 from_heat=0.22 to_heat=0.42 dist=179km
+2026-06-04 14:35:04,753 INFO [agent.decision_service] decision driver=D001 action=reposition params={'latitude': 24.09, 'longitude': 113.71}
+2026-06-04 14:35:04,753 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=reposition params={"latitude":24.09,"longitude":113.71} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,753 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=19 returned=19
+2026-06-04 14:35:04,753 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D001 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:04,773 INFO [agent.dispatcher] rule-based decision cargo_id=280668 score=0.2845 net_profit=1139.7
+2026-06-04 14:35:04,773 INFO [agent.decision_service] decision driver=D001 action=take_order params={'cargo_id': '280668'}
+2026-06-04 14:35:04,773 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=take_order params={"cargo_id":"280668"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,773 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=20 returned=20
+2026-06-04 14:35:04,773 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D001 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:04,797 INFO [agent.opportunity] [OPPORTUNITY] reposition recommended: reposition_gain=1908yuan > cost=230yuan*1.3 from_heat=0.26 to_heat=0.41 dist=92km
+2026-06-04 14:35:04,797 INFO [agent.decision_service] decision driver=D001 action=reposition params={'latitude': 23.06, 'longitude': 116.15}
+2026-06-04 14:35:04,797 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=reposition params={"latitude":23.06,"longitude":116.15} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,801 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=21 returned=21
+2026-06-04 14:35:04,801 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D001 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:04,819 INFO [agent.dispatcher] rule-based decision cargo_id=358703 score=0.2450 net_profit=671.2
+2026-06-04 14:35:04,819 INFO [agent.decision_service] decision driver=D001 action=take_order params={'cargo_id': '358703'}
+2026-06-04 14:35:04,819 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=take_order params={"cargo_id":"358703"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,823 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=22 returned=22
+2026-06-04 14:35:04,823 INFO [agent.dispatcher] [REST] mandatory rest 480min day=10
+2026-06-04 14:35:04,823 INFO [agent.decision_service] decision driver=D001 action=wait params={'duration_minutes': 480}
+2026-06-04 14:35:04,823 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=wait params={"duration_minutes":480} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,823 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=23 returned=23
+2026-06-04 14:35:04,823 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D001 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:04,832 INFO [agent.dispatcher] clear winner cargo_id=63911 score=0.2750 net_profit=504.4 profit_per_hour=38.5
+2026-06-04 14:35:04,832 INFO [agent.decision_service] decision driver=D001 action=take_order params={'cargo_id': '63911'}
+2026-06-04 14:35:04,848 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=take_order params={"cargo_id":"63911"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,848 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=24 returned=24
+2026-06-04 14:35:04,848 INFO [agent.dispatcher] [OFF_DAY] scheduling rest: got 1/3, interval=10, days_since_off=10, remaining=20
+2026-06-04 14:35:04,848 INFO [agent.dispatcher] [REST] mandatory rest 343min day=10
+2026-06-04 14:35:04,848 INFO [agent.decision_service] decision driver=D001 action=wait params={'duration_minutes': 343}
+2026-06-04 14:35:04,848 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=wait params={"duration_minutes":343} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,850 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=25 returned=25
+2026-06-04 14:35:04,850 INFO [agent.dispatcher] [GAMMA] off_days gamma=6.4 forcing full rest day 11 (1440min)
+2026-06-04 14:35:04,850 INFO [agent.decision_service] decision driver=D001 action=wait params={'duration_minutes': 1440}
+2026-06-04 14:35:04,850 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=wait params={"duration_minutes":1440} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,850 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=26 returned=26
+2026-06-04 14:35:04,850 INFO [agent.dispatcher] [REST] mandatory rest 480min day=12
+2026-06-04 14:35:04,850 INFO [agent.decision_service] decision driver=D001 action=wait params={'duration_minutes': 480}
+2026-06-04 14:35:04,850 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=wait params={"duration_minutes":480} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,850 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=27 returned=27
+2026-06-04 14:35:04,850 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D001 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:04,864 INFO [agent.dispatcher] clear winner cargo_id=376742 score=0.2587 net_profit=719.8 profit_per_hour=60.6
+2026-06-04 14:35:04,864 INFO [agent.decision_service] decision driver=D001 action=take_order params={'cargo_id': '376742'}
+2026-06-04 14:35:04,864 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=take_order params={"cargo_id":"376742"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,864 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=28 returned=28
+2026-06-04 14:35:04,864 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D001 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:04,892 INFO [agent.opportunity] [OPPORTUNITY] wait recommended: p_better=0.55 expected_gain=260yuan wait_cost=94yuan net=165 percentile=0.45 density=3
+2026-06-04 14:35:04,892 INFO [agent.decision_service] decision driver=D001 action=wait params={'duration_minutes': 63}
+2026-06-04 14:35:04,892 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=wait params={"duration_minutes":63} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,894 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=29 returned=29
+2026-06-04 14:35:04,896 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D001 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:04,912 INFO [agent.opportunity] [OPPORTUNITY] wait recommended: p_better=0.55 expected_gain=363yuan wait_cost=94yuan net=268 percentile=0.45 density=3
+2026-06-04 14:35:04,912 INFO [agent.decision_service] decision driver=D001 action=wait params={'duration_minutes': 63}
+2026-06-04 14:35:04,912 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=wait params={"duration_minutes":63} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,914 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=30 returned=30
+2026-06-04 14:35:04,914 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D001 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:04,928 INFO [agent.opportunity] [OPPORTUNITY] reposition recommended: reposition_gain=2437yuan > cost=174yuan*1.3 from_heat=0.22 to_heat=0.52 dist=70km
+2026-06-04 14:35:04,928 INFO [agent.decision_service] decision driver=D001 action=reposition params={'latitude': 23.2, 'longitude': 116.64}
+2026-06-04 14:35:04,928 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=reposition params={"latitude":23.2,"longitude":116.64} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,928 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=31 returned=31
+2026-06-04 14:35:04,928 INFO [agent.dispatcher] [REST] mandatory rest 480min day=13
+2026-06-04 14:35:04,928 INFO [agent.decision_service] decision driver=D001 action=wait params={'duration_minutes': 480}
+2026-06-04 14:35:04,928 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=wait params={"duration_minutes":480} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,928 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=32 returned=32
+2026-06-04 14:35:04,935 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D001 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:04,950 INFO [agent.dispatcher] rule-based decision cargo_id=385670 score=0.2426 net_profit=692.0
+2026-06-04 14:35:04,950 INFO [agent.decision_service] decision driver=D001 action=take_order params={'cargo_id': '385670'}
+2026-06-04 14:35:04,950 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=take_order params={"cargo_id":"385670"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,950 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=33 returned=33
+2026-06-04 14:35:04,950 INFO [agent.dispatcher] [REST] mandatory rest 480min day=14
+2026-06-04 14:35:04,950 INFO [agent.decision_service] decision driver=D001 action=wait params={'duration_minutes': 480}
+2026-06-04 14:35:04,950 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=wait params={"duration_minutes":480} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,960 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=34 returned=34
+2026-06-04 14:35:04,960 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D001 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:04,960 INFO [agent.dispatcher] rule-based decision cargo_id=91378 score=0.2775 net_profit=700.2
+2026-06-04 14:35:04,960 INFO [agent.decision_service] decision driver=D001 action=take_order params={'cargo_id': '91378'}
+2026-06-04 14:35:04,960 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=take_order params={"cargo_id":"91378"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,960 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=35 returned=35
+2026-06-04 14:35:04,960 INFO [agent.dispatcher] [REST] mandatory rest 480min day=15
+2026-06-04 14:35:04,960 INFO [agent.decision_service] decision driver=D001 action=wait params={'duration_minutes': 480}
+2026-06-04 14:35:04,960 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=wait params={"duration_minutes":480} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,976 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=36 returned=36
+2026-06-04 14:35:04,976 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D001 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:04,992 INFO [agent.dispatcher] rule-based decision cargo_id=99439 score=0.2626 net_profit=563.6
+2026-06-04 14:35:04,992 INFO [agent.decision_service] decision driver=D001 action=take_order params={'cargo_id': '99439'}
+2026-06-04 14:35:04,992 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=take_order params={"cargo_id":"99439"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,992 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=37 returned=37
+2026-06-04 14:35:04,992 INFO [agent.dispatcher] [REST] mandatory rest 480min day=16
+2026-06-04 14:35:04,992 INFO [agent.decision_service] decision driver=D001 action=wait params={'duration_minutes': 480}
+2026-06-04 14:35:04,992 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=wait params={"duration_minutes":480} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:04,992 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=38 returned=38
+2026-06-04 14:35:04,992 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D001 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:05,008 INFO [agent.dispatcher] rule-based decision cargo_id=104389 score=0.2293 net_profit=10.1
+2026-06-04 14:35:05,008 INFO [agent.decision_service] decision driver=D001 action=take_order params={'cargo_id': '104389'}
+2026-06-04 14:35:05,008 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=take_order params={"cargo_id":"104389"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:05,008 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=39 returned=39
+2026-06-04 14:35:05,008 INFO [agent.dispatcher] [REST] mandatory rest 480min day=17
+2026-06-04 14:35:05,008 INFO [agent.decision_service] decision driver=D001 action=wait params={'duration_minutes': 480}
+2026-06-04 14:35:05,008 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=wait params={"duration_minutes":480} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:05,025 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=40 returned=40
+2026-06-04 14:35:05,025 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D001 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:05,025 INFO [agent.dispatcher] rule-based decision cargo_id=414348 score=0.2584 net_profit=613.3
+2026-06-04 14:35:05,025 INFO [agent.decision_service] decision driver=D001 action=take_order params={'cargo_id': '414348'}
+2026-06-04 14:35:05,025 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=take_order params={"cargo_id":"414348"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:05,025 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=41 returned=41
+2026-06-04 14:35:05,025 INFO [agent.dispatcher] [REST] mandatory rest 480min day=18
+2026-06-04 14:35:05,025 INFO [agent.decision_service] decision driver=D001 action=wait params={'duration_minutes': 480}
+2026-06-04 14:35:05,025 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=wait params={"duration_minutes":480} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:05,040 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=42 returned=42
+2026-06-04 14:35:05,040 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D001 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:05,050 INFO [agent.dispatcher] rule-based decision cargo_id=121475 score=0.2245 net_profit=465.9
+2026-06-04 14:35:05,050 INFO [agent.decision_service] decision driver=D001 action=take_order params={'cargo_id': '121475'}
+2026-06-04 14:35:05,050 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=take_order params={"cargo_id":"121475"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:05,050 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=43 returned=43
+2026-06-04 14:35:05,050 INFO [agent.dispatcher] [REST] mandatory rest 480min day=19
+2026-06-04 14:35:05,050 INFO [agent.decision_service] decision driver=D001 action=wait params={'duration_minutes': 480}
+2026-06-04 14:35:05,050 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=wait params={"duration_minutes":480} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:05,050 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=44 returned=44
+2026-06-04 14:35:05,056 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D001 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:05,061 INFO [agent.dispatcher] rule-based decision cargo_id=125828 score=0.2568 net_profit=282.8
+2026-06-04 14:35:05,061 INFO [agent.decision_service] decision driver=D001 action=take_order params={'cargo_id': '125828'}
+2026-06-04 14:35:05,061 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=take_order params={"cargo_id":"125828"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:05,061 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=45 returned=45
+2026-06-04 14:35:05,061 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D001 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:05,075 INFO [agent.dispatcher] rule-based decision cargo_id=122452 score=0.2158 net_profit=739.9
+2026-06-04 14:35:05,075 INFO [agent.decision_service] decision driver=D001 action=take_order params={'cargo_id': '122452'}
+2026-06-04 14:35:05,075 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=take_order params={"cargo_id":"122452"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:05,075 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=46 returned=46
+2026-06-04 14:35:05,075 INFO [agent.dispatcher] [REST] mandatory rest 480min day=20
+2026-06-04 14:35:05,075 INFO [agent.decision_service] decision driver=D001 action=wait params={'duration_minutes': 480}
+2026-06-04 14:35:05,075 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=wait params={"duration_minutes":480} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:05,084 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=47 returned=47
+2026-06-04 14:35:05,086 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D001 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:05,087 INFO [agent.dispatcher] rule-based decision cargo_id=129545 score=0.2736 net_profit=592.9
+2026-06-04 14:35:05,087 INFO [agent.decision_service] decision driver=D001 action=take_order params={'cargo_id': '129545'}
+2026-06-04 14:35:05,087 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=take_order params={"cargo_id":"129545"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:05,103 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=48 returned=48
+2026-06-04 14:35:05,103 INFO [agent.dispatcher] [REST] mandatory rest 480min day=21
+2026-06-04 14:35:05,103 INFO [agent.decision_service] decision driver=D001 action=wait params={'duration_minutes': 480}
+2026-06-04 14:35:05,105 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=wait params={"duration_minutes":480} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:05,105 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=49 returned=49
+2026-06-04 14:35:05,107 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D001 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:05,115 INFO [agent.dispatcher] rule-based decision cargo_id=140080 score=0.2534 net_profit=504.2
+2026-06-04 14:35:05,115 INFO [agent.decision_service] decision driver=D001 action=take_order params={'cargo_id': '140080'}
+2026-06-04 14:35:05,115 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=take_order params={"cargo_id":"140080"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:05,121 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=50 returned=50
+2026-06-04 14:35:05,121 INFO [agent.dispatcher] [OFF_DAY] scheduling rest: got 2/3, interval=10, days_since_off=10, remaining=9
+2026-06-04 14:35:05,121 INFO [agent.dispatcher] [REST] mandatory rest 60min day=21
+2026-06-04 14:35:05,121 INFO [agent.decision_service] decision driver=D001 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:05,121 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:05,121 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=51 returned=51
+2026-06-04 14:35:05,123 INFO [agent.dispatcher] [REST] mandatory rest 480min day=22
+2026-06-04 14:35:05,123 INFO [agent.decision_service] decision driver=D001 action=wait params={'duration_minutes': 480}
+2026-06-04 14:35:05,123 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=wait params={"duration_minutes":480} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:05,123 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=52 returned=52
+2026-06-04 14:35:05,126 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D001 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:05,130 INFO [agent.opportunity] [OPPORTUNITY] reposition recommended: reposition_gain=4596yuan > cost=262yuan*1.3 from_heat=0.42 to_heat=0.61 dist=105km
+2026-06-04 14:35:05,130 INFO [agent.decision_service] decision driver=D001 action=reposition params={'latitude': 24.16, 'longitude': 116.63}
+2026-06-04 14:35:05,130 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=reposition params={"latitude":24.16,"longitude":116.63} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:05,135 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=53 returned=53
+2026-06-04 14:35:05,135 INFO [agent.dispatcher] [OFF_DAY] scheduling rest: got 2/3, interval=9, days_since_off=11, remaining=8
+2026-06-04 14:35:05,135 INFO [agent.dispatcher] [REST] mandatory rest 838min day=22
+2026-06-04 14:35:05,135 INFO [agent.decision_service] decision driver=D001 action=wait params={'duration_minutes': 838}
+2026-06-04 14:35:05,135 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=wait params={"duration_minutes":838} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:05,135 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=54 returned=54
+2026-06-04 14:35:05,135 INFO [agent.dispatcher] [GAMMA] off_days gamma=7.2 forcing full rest day 23 (1440min)
+2026-06-04 14:35:05,135 INFO [agent.decision_service] decision driver=D001 action=wait params={'duration_minutes': 1440}
+2026-06-04 14:35:05,135 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=wait params={"duration_minutes":1440} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:05,151 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=55 returned=55
+2026-06-04 14:35:05,153 INFO [agent.dispatcher] [REST] mandatory rest 480min day=24
+2026-06-04 14:35:05,153 INFO [agent.decision_service] decision driver=D001 action=wait params={'duration_minutes': 480}
+2026-06-04 14:35:05,153 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=wait params={"duration_minutes":480} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:05,153 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=56 returned=56
+2026-06-04 14:35:05,155 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D001 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:05,167 INFO [agent.dispatcher] rule-based decision cargo_id=291692 score=0.2648 net_profit=666.0
+2026-06-04 14:35:05,167 INFO [agent.decision_service] decision driver=D001 action=take_order params={'cargo_id': '291692'}
+2026-06-04 14:35:05,167 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=take_order params={"cargo_id":"291692"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:05,185 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=57 returned=57
+2026-06-04 14:35:05,187 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D001 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:05,189 INFO [agent.dispatcher] rule-based decision cargo_id=167347 score=0.2219 net_profit=-15.1
+2026-06-04 14:35:05,189 INFO [agent.decision_service] decision driver=D001 action=take_order params={'cargo_id': '167347'}
+2026-06-04 14:35:05,189 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=take_order params={"cargo_id":"167347"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:05,203 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=58 returned=58
+2026-06-04 14:35:05,203 INFO [agent.dispatcher] [REST] mandatory rest 480min day=25
+2026-06-04 14:35:05,203 INFO [agent.decision_service] decision driver=D001 action=wait params={'duration_minutes': 480}
+2026-06-04 14:35:05,203 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=wait params={"duration_minutes":480} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:05,203 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=59 returned=59
+2026-06-04 14:35:05,203 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D001 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:05,223 INFO [agent.dispatcher] rule-based decision cargo_id=297478 score=0.2405 net_profit=731.2
+2026-06-04 14:35:05,223 INFO [agent.decision_service] decision driver=D001 action=take_order params={'cargo_id': '297478'}
+2026-06-04 14:35:05,223 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=take_order params={"cargo_id":"297478"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:05,231 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=60 returned=60
+2026-06-04 14:35:05,231 INFO [agent.dispatcher] [REST] mandatory rest 480min day=26
+2026-06-04 14:35:05,231 INFO [agent.decision_service] decision driver=D001 action=wait params={'duration_minutes': 480}
+2026-06-04 14:35:05,231 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=wait params={"duration_minutes":480} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:05,231 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=61 returned=61
+2026-06-04 14:35:05,248 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D001 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:05,263 INFO [agent.dispatcher] rule-based decision cargo_id=473297 score=0.2295 net_profit=475.1
+2026-06-04 14:35:05,263 INFO [agent.decision_service] decision driver=D001 action=take_order params={'cargo_id': '473297'}
+2026-06-04 14:35:05,263 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=take_order params={"cargo_id":"473297"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:05,278 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=62 returned=62
+2026-06-04 14:35:05,278 INFO [agent.dispatcher] [REST] mandatory rest 480min day=27
+2026-06-04 14:35:05,278 INFO [agent.decision_service] decision driver=D001 action=wait params={'duration_minutes': 480}
+2026-06-04 14:35:05,278 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=wait params={"duration_minutes":480} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:05,278 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=63 returned=63
+2026-06-04 14:35:05,288 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D001 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:05,294 INFO [agent.dispatcher] rule-based decision cargo_id=194654 score=0.2243 net_profit=64.3
+2026-06-04 14:35:05,294 INFO [agent.decision_service] decision driver=D001 action=take_order params={'cargo_id': '194654'}
+2026-06-04 14:35:05,294 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=take_order params={"cargo_id":"194654"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:05,310 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=64 returned=64
+2026-06-04 14:35:05,310 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D001 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:05,326 INFO [agent.dispatcher] clear winner cargo_id=203092 score=0.2916 net_profit=693.8 profit_per_hour=51.5
+2026-06-04 14:35:05,326 INFO [agent.decision_service] decision driver=D001 action=take_order params={'cargo_id': '203092'}
+2026-06-04 14:35:05,326 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=take_order params={"cargo_id":"203092"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:05,326 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=65 returned=65
+2026-06-04 14:35:05,326 INFO [agent.dispatcher] [REST] mandatory rest 480min day=29
+2026-06-04 14:35:05,326 INFO [agent.decision_service] decision driver=D001 action=wait params={'duration_minutes': 480}
+2026-06-04 14:35:05,326 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=wait params={"duration_minutes":480} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:05,326 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D001 step=-1 total=66 returned=66
+2026-06-04 14:35:05,326 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D001 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:05,350 INFO [agent.dispatcher] rule-based decision cargo_id=487660 score=0.2272 net_profit=439.5
+2026-06-04 14:35:05,350 INFO [agent.decision_service] decision driver=D001 action=take_order params={'cargo_id': '487660'}
+2026-06-04 14:35:05,350 INFO [bench.embedded_agent.engine] decision driver_id=D001 action=take_order params={"cargo_id":"487660"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:15,833 INFO [agent.preference_parser] Parsed preference: type=rest_window, penalty=1800, content=零点以后到早上六点这段我得睡觉，车得停着熄火，雷打不动。
+2026-06-04 14:35:15,833 INFO [agent.preference_parser] Parsed preference: type=forbidden_category, penalty=3400, content=蔬菜几分钱一斤的路一颠就烂，赔不起损耗，凡是蔬菜货源我一律推掉，每接一次都扣钱。
+2026-06-04 14:35:15,833 INFO [agent.preference_parser] Parsed preference: type=min_days_in_region, penalty=6000, content=我在广州市增城区有家老档口（23.15，113.67）要照应，自然月里装货或卸货在增城的货，起码得接
+2026-06-04 14:35:15,833 INFO [agent.preference_parser] Parsed preference: type=max_pickup_km, penalty=120, content=看好了单子再动身，接单后赶去装货那一程，空驶超过五十五公里我就不想接，超一次扣120。
+2026-06-04 14:35:15,833 INFO [agent.preference_parser] Parsed preference: type=off_days, penalty=10000, content=这月得进修理厂做保养，起码留两个整天停驶检修，那天别给我排活。
+2026-06-04 14:35:15,833 INFO [agent.dispatcher] preferences parsed driver=D002 rules=[('rest_window', {'start_hour': 0, 'end_hour': 6}), ('forbidden_category', {'categories': ['蔬菜', '青菜', '叶菜', '生鲜蔬菜'], 'keyword': '蔬菜'}), ('min_days_in_region', {'region': '增城', 'min_days': 4}), ('max_pickup_km', {'max_km': 55.0}), ('off_days', {'min_days': 2})]
+2026-06-04 14:35:15,833 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=0 returned=0
+2026-06-04 14:35:15,833 INFO [agent.dispatcher] [GAMMA] off_days gamma=6.1 forcing full rest day 0 (1440min)
+2026-06-04 14:35:15,833 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 1440}
+2026-06-04 14:35:15,833 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":1440} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:15,849 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=1 returned=1
+2026-06-04 14:35:15,849 INFO [agent.dispatcher] [REST] mandatory rest 360min day=1
+2026-06-04 14:35:15,849 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 360}
+2026-06-04 14:35:15,849 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":360} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:15,849 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=2 returned=2
+2026-06-04 14:35:15,849 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:15,868 INFO [agent.dispatcher] [P2] region_constraint active: only accept cargo to 增城 (gap=4)
+2026-06-04 14:35:15,868 INFO [agent.dispatcher] [PREF_PUSH] boost_region applied: 1 regions, day=1
+2026-06-04 14:35:15,868 INFO [agent.dispatcher] clear winner cargo_id=222460 score=0.2363 net_profit=-27.6 profit_per_hour=-3.4
+2026-06-04 14:35:15,868 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '222460'}
+2026-06-04 14:35:15,868 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"222460"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:15,882 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=3 returned=3
+2026-06-04 14:35:15,882 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:15,901 INFO [agent.dispatcher] [P2] region_constraint active: only accept cargo to 增城 (gap=3)
+2026-06-04 14:35:15,905 INFO [agent.dispatcher] [PREF_PUSH] boost_region applied: 1 regions, day=1
+2026-06-04 14:35:15,905 INFO [agent.dispatcher] rule-based decision cargo_id=4174 score=0.2322 net_profit=80.6
+2026-06-04 14:35:15,905 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '4174'}
+2026-06-04 14:35:15,905 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"4174"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:15,913 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=4 returned=4
+2026-06-04 14:35:15,913 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:15,913 INFO [agent.dispatcher] [P2] region_constraint active: only accept cargo to 增城 (gap=3)
+2026-06-04 14:35:15,913 INFO [agent.dispatcher] [PREF_PUSH] boost_region applied: 1 regions, day=1
+2026-06-04 14:35:15,913 INFO [agent.dispatcher] no cargo + cold_start → wait 60min (driver_queries=3 gen=40)
+2026-06-04 14:35:15,913 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:15,913 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:15,913 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=5 returned=5
+2026-06-04 14:35:15,913 INFO [agent.dispatcher] [REST] mandatory rest 305min day=2
+2026-06-04 14:35:15,913 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 305}
+2026-06-04 14:35:15,913 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":305} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:15,913 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=6 returned=6
+2026-06-04 14:35:15,913 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:15,931 INFO [agent.dispatcher] [P2] region_constraint active: only accept cargo to 增城 (gap=3)
+2026-06-04 14:35:15,931 INFO [agent.dispatcher] [PREF_PUSH] boost_region applied: 1 regions, day=2
+2026-06-04 14:35:15,931 INFO [agent.dispatcher] rule-based decision cargo_id=235864 score=0.2544 net_profit=-104.1
+2026-06-04 14:35:15,931 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '235864'}
+2026-06-04 14:35:15,931 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"235864"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:15,931 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=7 returned=7
+2026-06-04 14:35:15,945 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:15,949 INFO [agent.dispatcher] [P2] region_constraint active: only accept cargo to 增城 (gap=2)
+2026-06-04 14:35:15,951 INFO [agent.dispatcher] [PREF_PUSH] boost_region applied: 1 regions, day=2
+2026-06-04 14:35:15,951 INFO [agent.dispatcher] rule-based decision cargo_id=240922 score=0.2646 net_profit=138.9
+2026-06-04 14:35:15,951 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '240922'}
+2026-06-04 14:35:15,951 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"240922"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:15,951 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=8 returned=8
+2026-06-04 14:35:15,951 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:15,961 INFO [agent.dispatcher] [P2] region_constraint active: only accept cargo to 增城 (gap=2)
+2026-06-04 14:35:15,961 INFO [agent.dispatcher] [PREF_PUSH] boost_region applied: 1 regions, day=2
+2026-06-04 14:35:15,961 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.54)
+2026-06-04 14:35:15,961 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:15,961 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:15,961 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=9 returned=9
+2026-06-04 14:35:15,961 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:15,968 INFO [agent.dispatcher] [P2] region_constraint active: only accept cargo to 增城 (gap=2)
+2026-06-04 14:35:15,968 INFO [agent.dispatcher] [PREF_PUSH] boost_region applied: 1 regions, day=2
+2026-06-04 14:35:15,968 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.54)
+2026-06-04 14:35:15,968 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:15,968 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:15,968 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=10 returned=10
+2026-06-04 14:35:15,968 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:15,977 INFO [agent.dispatcher] [P2] region_constraint active: only accept cargo to 增城 (gap=2)
+2026-06-04 14:35:15,977 INFO [agent.dispatcher] [PREF_PUSH] boost_region applied: 1 regions, day=2
+2026-06-04 14:35:15,977 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.54)
+2026-06-04 14:35:15,977 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:15,977 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:15,977 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=11 returned=11
+2026-06-04 14:35:15,977 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:15,977 INFO [agent.dispatcher] [P2] region_constraint active: only accept cargo to 增城 (gap=2)
+2026-06-04 14:35:15,977 INFO [agent.dispatcher] [PREF_PUSH] boost_region applied: 1 regions, day=2
+2026-06-04 14:35:15,977 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.54)
+2026-06-04 14:35:15,977 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:15,977 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:15,977 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=12 returned=12
+2026-06-04 14:35:15,977 INFO [agent.dispatcher] [REST] mandatory rest 345min day=3
+2026-06-04 14:35:15,977 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 345}
+2026-06-04 14:35:15,977 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":345} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:15,977 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=13 returned=13
+2026-06-04 14:35:15,977 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:15,977 INFO [agent.dispatcher] [P2] region_constraint active: only accept cargo to 增城 (gap=2)
+2026-06-04 14:35:15,977 INFO [agent.dispatcher] [PREF_PUSH] boost_region applied: 1 regions, day=3
+2026-06-04 14:35:15,977 INFO [agent.dispatcher] rule-based decision cargo_id=320606 score=0.2142 net_profit=149.2
+2026-06-04 14:35:15,977 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '320606'}
+2026-06-04 14:35:15,977 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"320606"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:15,995 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=14 returned=14
+2026-06-04 14:35:15,995 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:15,995 INFO [agent.dispatcher] [P2] region_constraint active: only accept cargo to 增城 (gap=1)
+2026-06-04 14:35:15,995 INFO [agent.dispatcher] [PREF_PUSH] boost_region applied: 1 regions, day=3
+2026-06-04 14:35:16,009 INFO [agent.dispatcher] rule-based decision cargo_id=247137 score=0.2479 net_profit=322.5
+2026-06-04 14:35:16,009 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '247137'}
+2026-06-04 14:35:16,009 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"247137"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,009 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=15 returned=15
+2026-06-04 14:35:16,009 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:16,009 INFO [agent.dispatcher] [P2] region_constraint active: only accept cargo to 增城 (gap=1)
+2026-06-04 14:35:16,009 INFO [agent.dispatcher] [PREF_PUSH] boost_region applied: 1 regions, day=3
+2026-06-04 14:35:16,009 INFO [agent.dispatcher] rule-based decision cargo_id=245901 score=0.1501 net_profit=139.4
+2026-06-04 14:35:16,009 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '245901'}
+2026-06-04 14:35:16,009 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"245901"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,009 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=16 returned=16
+2026-06-04 14:35:16,025 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,025 INFO [agent.dispatcher] [P2] region_constraint active: only accept cargo to 增城 (gap=1)
+2026-06-04 14:35:16,025 INFO [agent.dispatcher] [PREF_PUSH] boost_region applied: 1 regions, day=3
+2026-06-04 14:35:16,025 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.52)
+2026-06-04 14:35:16,025 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,025 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,025 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=17 returned=17
+2026-06-04 14:35:16,025 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,025 INFO [agent.dispatcher] [P2] region_constraint active: only accept cargo to 增城 (gap=1)
+2026-06-04 14:35:16,025 INFO [agent.dispatcher] [PREF_PUSH] boost_region applied: 1 regions, day=3
+2026-06-04 14:35:16,025 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.52)
+2026-06-04 14:35:16,025 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,025 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,025 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=18 returned=18
+2026-06-04 14:35:16,025 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,025 INFO [agent.dispatcher] [P2] region_constraint active: only accept cargo to 增城 (gap=1)
+2026-06-04 14:35:16,025 INFO [agent.dispatcher] [PREF_PUSH] boost_region applied: 1 regions, day=3
+2026-06-04 14:35:16,025 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.52)
+2026-06-04 14:35:16,025 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,025 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,041 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=19 returned=19
+2026-06-04 14:35:16,041 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,041 INFO [agent.dispatcher] [P2] region_constraint active: only accept cargo to 增城 (gap=1)
+2026-06-04 14:35:16,041 INFO [agent.dispatcher] [PREF_PUSH] boost_region applied: 1 regions, day=3
+2026-06-04 14:35:16,041 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.52)
+2026-06-04 14:35:16,041 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,041 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,041 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=20 returned=20
+2026-06-04 14:35:16,041 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,041 INFO [agent.dispatcher] [P2] region_constraint active: only accept cargo to 增城 (gap=1)
+2026-06-04 14:35:16,041 INFO [agent.dispatcher] [PREF_PUSH] boost_region applied: 1 regions, day=3
+2026-06-04 14:35:16,041 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.52)
+2026-06-04 14:35:16,041 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,041 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,041 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=21 returned=21
+2026-06-04 14:35:16,041 INFO [agent.dispatcher] [REST] mandatory rest 322min day=4
+2026-06-04 14:35:16,041 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 322}
+2026-06-04 14:35:16,041 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":322} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,041 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=22 returned=22
+2026-06-04 14:35:16,041 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,041 INFO [agent.dispatcher] [P2] region_constraint active: only accept cargo to 增城 (gap=1)
+2026-06-04 14:35:16,041 INFO [agent.dispatcher] [PREF_PUSH] boost_region applied: 1 regions, day=4
+2026-06-04 14:35:16,041 INFO [agent.opportunity] [OPPORTUNITY] wait recommended: p_better=0.34 expected_gain=96yuan wait_cost=75yuan net=21 percentile=0.66 density=272
+2026-06-04 14:35:16,041 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 50}
+2026-06-04 14:35:16,041 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":50} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,041 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=23 returned=23
+2026-06-04 14:35:16,058 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,060 INFO [agent.dispatcher] [P2] region_constraint active: only accept cargo to 增城 (gap=1)
+2026-06-04 14:35:16,060 INFO [agent.dispatcher] [PREF_PUSH] boost_region applied: 1 regions, day=4
+2026-06-04 14:35:16,060 INFO [agent.opportunity] [OPPORTUNITY] wait recommended: p_better=0.42 expected_gain=119yuan wait_cost=82yuan net=37 percentile=0.58 density=290
+2026-06-04 14:35:16,060 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 55}
+2026-06-04 14:35:16,060 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":55} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,060 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=24 returned=24
+2026-06-04 14:35:16,060 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,060 INFO [agent.dispatcher] [P2] region_constraint active: only accept cargo to 增城 (gap=1)
+2026-06-04 14:35:16,068 INFO [agent.dispatcher] [PREF_PUSH] boost_region applied: 1 regions, day=4
+2026-06-04 14:35:16,068 INFO [agent.opportunity] [OPPORTUNITY] wait recommended: p_better=0.50 expected_gain=144yuan wait_cost=90yuan net=54 percentile=0.50 density=309
+2026-06-04 14:35:16,068 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,068 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,068 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=25 returned=25
+2026-06-04 14:35:16,073 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,073 INFO [agent.dispatcher] [P2] region_constraint active: only accept cargo to 增城 (gap=1)
+2026-06-04 14:35:16,075 INFO [agent.dispatcher] [PREF_PUSH] boost_region applied: 1 regions, day=4
+2026-06-04 14:35:16,075 INFO [agent.opportunity] [OPPORTUNITY] wait recommended: p_better=0.52 expected_gain=149yuan wait_cost=92yuan net=58 percentile=0.48 density=339
+2026-06-04 14:35:16,075 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 61}
+2026-06-04 14:35:16,075 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":61} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,077 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=26 returned=26
+2026-06-04 14:35:16,081 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,081 INFO [agent.dispatcher] [P2] region_constraint active: only accept cargo to 增城 (gap=1)
+2026-06-04 14:35:16,081 INFO [agent.dispatcher] [PREF_PUSH] boost_region applied: 1 regions, day=4
+2026-06-04 14:35:16,081 INFO [agent.dispatcher] clear winner cargo_id=254145 score=0.2305 net_profit=236.8 profit_per_hour=39.3
+2026-06-04 14:35:16,081 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '254145'}
+2026-06-04 14:35:16,081 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"254145"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,089 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=27 returned=27
+2026-06-04 14:35:16,089 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,089 INFO [agent.dispatcher] rule-based decision cargo_id=329887 score=0.1845 net_profit=240.4
+2026-06-04 14:35:16,089 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '329887'}
+2026-06-04 14:35:16,089 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"329887"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,089 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=28 returned=28
+2026-06-04 14:35:16,105 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:16,105 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.49)
+2026-06-04 14:35:16,105 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,105 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,105 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=29 returned=29
+2026-06-04 14:35:16,105 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:16,105 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.51)
+2026-06-04 14:35:16,105 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,105 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,105 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=30 returned=30
+2026-06-04 14:35:16,105 INFO [agent.dispatcher] [REST] mandatory rest 316min day=5
+2026-06-04 14:35:16,105 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 316}
+2026-06-04 14:35:16,105 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":316} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,105 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=31 returned=31
+2026-06-04 14:35:16,121 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:16,121 INFO [agent.dispatcher] clear winner cargo_id=261147 score=0.2925 net_profit=616.4 profit_per_hour=41.1
+2026-06-04 14:35:16,121 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '261147'}
+2026-06-04 14:35:16,121 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"261147"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,136 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=32 returned=32
+2026-06-04 14:35:16,136 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:16,136 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.61)
+2026-06-04 14:35:16,136 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,136 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,136 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=33 returned=33
+2026-06-04 14:35:16,136 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:16,152 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.61)
+2026-06-04 14:35:16,152 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,152 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,152 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=34 returned=34
+2026-06-04 14:35:16,152 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:16,152 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.60)
+2026-06-04 14:35:16,152 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,152 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,152 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=35 returned=35
+2026-06-04 14:35:16,152 INFO [agent.dispatcher] [REST] mandatory rest 320min day=6
+2026-06-04 14:35:16,152 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 320}
+2026-06-04 14:35:16,152 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":320} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,152 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=36 returned=36
+2026-06-04 14:35:16,152 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,152 INFO [agent.dispatcher] rule-based decision cargo_id=30826 score=0.3015 net_profit=810.5
+2026-06-04 14:35:16,152 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '30826'}
+2026-06-04 14:35:16,152 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"30826"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,170 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=37 returned=37
+2026-06-04 14:35:16,170 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:16,184 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.52)
+2026-06-04 14:35:16,184 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,184 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,184 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=38 returned=38
+2026-06-04 14:35:16,184 INFO [agent.dispatcher] [REST] mandatory rest 294min day=7
+2026-06-04 14:35:16,184 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 294}
+2026-06-04 14:35:16,184 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":294} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,186 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=39 returned=39
+2026-06-04 14:35:16,186 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:16,190 INFO [agent.dispatcher] rule-based decision cargo_id=273433 score=0.2982 net_profit=1012.0
+2026-06-04 14:35:16,190 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '273433'}
+2026-06-04 14:35:16,190 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"273433"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,203 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=40 returned=40
+2026-06-04 14:35:16,203 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:16,216 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.33)
+2026-06-04 14:35:16,216 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,216 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,216 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=41 returned=41
+2026-06-04 14:35:16,216 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:16,216 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.33)
+2026-06-04 14:35:16,216 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,216 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,232 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=42 returned=42
+2026-06-04 14:35:16,232 INFO [agent.dispatcher] [REST] mandatory rest 311min day=8
+2026-06-04 14:35:16,232 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 311}
+2026-06-04 14:35:16,232 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":311} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,232 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=43 returned=43
+2026-06-04 14:35:16,232 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:16,247 INFO [agent.dispatcher] rule-based decision cargo_id=43849 score=0.2603 net_profit=475.0
+2026-06-04 14:35:16,247 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '43849'}
+2026-06-04 14:35:16,247 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"43849"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,247 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=44 returned=44
+2026-06-04 14:35:16,247 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:16,247 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.50)
+2026-06-04 14:35:16,247 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,247 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,264 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=45 returned=45
+2026-06-04 14:35:16,264 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:16,270 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.50)
+2026-06-04 14:35:16,270 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,270 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,270 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=46 returned=46
+2026-06-04 14:35:16,270 INFO [agent.dispatcher] [REST] mandatory rest 318min day=9
+2026-06-04 14:35:16,272 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 318}
+2026-06-04 14:35:16,272 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":318} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,272 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=47 returned=47
+2026-06-04 14:35:16,272 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:16,279 INFO [agent.dispatcher] clear winner cargo_id=53958 score=0.2642 net_profit=391.8 profit_per_hour=24.2
+2026-06-04 14:35:16,279 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '53958'}
+2026-06-04 14:35:16,279 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"53958"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,279 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=48 returned=48
+2026-06-04 14:35:16,279 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:16,295 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.59)
+2026-06-04 14:35:16,295 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,295 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,295 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=49 returned=49
+2026-06-04 14:35:16,295 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:16,295 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.58)
+2026-06-04 14:35:16,295 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,309 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,309 INFO [agent.preference_parser] Parsed preference: type=rest_window, penalty=1800, content=零点以后到早上六点这段我得睡觉，车得停着熄火，雷打不动。
+2026-06-04 14:35:16,309 INFO [agent.preference_parser] Parsed preference: type=forbidden_category, penalty=3400, content=蔬菜几分钱一斤的路一颠就烂，赔不起损耗，凡是蔬菜货源我一律推掉，每接一次都扣钱。
+2026-06-04 14:35:16,309 INFO [agent.preference_parser] Parsed preference: type=min_days_in_region, penalty=6000, content=我在广州市增城区有家老档口（23.15，113.67）要照应，自然月里装货或卸货在增城的货，起码得接
+2026-06-04 14:35:16,309 INFO [agent.preference_parser] Parsed preference: type=max_pickup_km, penalty=120, content=看好了单子再动身，接单后赶去装货那一程，空驶超过五十五公里我就不想接，超一次扣120。
+2026-06-04 14:35:16,309 INFO [agent.preference_parser] Parsed preference: type=off_days, penalty=10000, content=这月得进修理厂做保养，起码留两个整天停驶检修，那天别给我排活。
+2026-06-04 14:35:16,309 INFO [agent.preference_parser] Parsed preference: type=day_specific_location, penalty=5000, content=三月十二号增城老档口清库存，当天得到增城区停一趟，花两小时把数目对清楚。
+2026-06-04 14:35:16,309 INFO [agent.dispatcher] preferences parsed driver=D002 rules=[('rest_window', {'start_hour': 0, 'end_hour': 6}), ('forbidden_category', {'categories': ['蔬菜', '青菜', '叶菜', '生鲜蔬菜'], 'keyword': '蔬菜'}), ('min_days_in_region', {'region': '增城', 'min_days': 4}), ('max_pickup_km', {'max_km': 55.0}), ('off_days', {'min_days': 2}), ('day_specific_location', {'lat': 23.15, 'lng': 113.67, 'region_name': '增城', 'text': '三月十二号增城老档口清库存，当天得到增城区停一趟，花两小时把数目对清楚。'})]
+2026-06-04 14:35:16,309 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=50 returned=50
+2026-06-04 14:35:16,309 INFO [agent.dispatcher] [REST] mandatory rest 329min day=10
+2026-06-04 14:35:16,311 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 329}
+2026-06-04 14:35:16,311 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":329} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,311 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=51 returned=51
+2026-06-04 14:35:16,311 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:16,311 INFO [agent.dispatcher] rule-based decision cargo_id=58914 score=0.2775 net_profit=505.2
+2026-06-04 14:35:16,311 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '58914'}
+2026-06-04 14:35:16,311 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"58914"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,327 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=52 returned=52
+2026-06-04 14:35:16,329 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:16,329 INFO [agent.dispatcher] rule-based decision cargo_id=63426 score=0.1905 net_profit=211.2
+2026-06-04 14:35:16,329 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '63426'}
+2026-06-04 14:35:16,329 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"63426"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,329 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=53 returned=53
+2026-06-04 14:35:16,329 INFO [agent.dispatcher] [PRE_DAY] tomorrow day=11 needs 增城, 60.5km away → reposition
+2026-06-04 14:35:16,329 INFO [agent.decision_service] decision driver=D002 action=reposition params={'latitude': 23.15, 'longitude': 113.67}
+2026-06-04 14:35:16,329 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=reposition params={"latitude":23.15,"longitude":113.67} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,329 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=54 returned=54
+2026-06-04 14:35:16,329 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,343 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.53)
+2026-06-04 14:35:16,343 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,343 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,343 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=55 returned=55
+2026-06-04 14:35:16,343 INFO [agent.dispatcher] [REST] mandatory rest 299min day=11
+2026-06-04 14:35:16,343 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 299}
+2026-06-04 14:35:16,343 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":299} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,343 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=56 returned=56
+2026-06-04 14:35:16,343 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,343 INFO [agent.dispatcher] [P1] day_constraint active: lock to (23.15,113.67) radius=80km dist=0.0km
+2026-06-04 14:35:16,343 INFO [agent.dispatcher] rule-based decision cargo_id=370509 score=0.2171 net_profit=262.9
+2026-06-04 14:35:16,343 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '370509'}
+2026-06-04 14:35:16,343 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"370509"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,358 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=57 returned=57
+2026-06-04 14:35:16,358 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:16,358 INFO [agent.dispatcher] [P1] day_constraint active: lock to (23.15,113.67) radius=80km dist=67.5km
+2026-06-04 14:35:16,367 INFO [agent.dispatcher] [PREF_PUSH] day_specific_location day=11 → reposition to 增城 (67.5km)
+2026-06-04 14:35:16,367 INFO [agent.decision_service] decision driver=D002 action=reposition params={'latitude': 23.15, 'longitude': 113.67}
+2026-06-04 14:35:16,367 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=reposition params={"latitude":23.15,"longitude":113.67} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,369 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=58 returned=58
+2026-06-04 14:35:16,371 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,373 INFO [agent.dispatcher] [P1] day_constraint active: lock to (23.15,113.67) radius=80km dist=0.0km
+2026-06-04 14:35:16,374 INFO [agent.dispatcher] rule-based decision cargo_id=285776 score=0.2351 net_profit=475.5
+2026-06-04 14:35:16,374 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '285776'}
+2026-06-04 14:35:16,374 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"285776"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,374 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=59 returned=59
+2026-06-04 14:35:16,374 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,374 INFO [agent.dispatcher] [P1] day_constraint active: lock to (23.15,113.67) radius=80km dist=79.3km
+2026-06-04 14:35:16,374 INFO [agent.dispatcher] [PREF_PUSH] day_specific_location day=11 → reposition to 增城 (79.3km)
+2026-06-04 14:35:16,374 WARNING [agent.risk_checker] [RISK] reposition crosses rest_window [0:00-6:00], fallback to wait
+2026-06-04 14:35:16,374 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,374 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,374 INFO [agent.preference_parser] Parsed preference: type=rest_window, penalty=1800, content=零点以后到早上六点这段我得睡觉，车得停着熄火，雷打不动。
+2026-06-04 14:35:16,374 INFO [agent.preference_parser] Parsed preference: type=forbidden_category, penalty=3400, content=蔬菜几分钱一斤的路一颠就烂，赔不起损耗，凡是蔬菜货源我一律推掉，每接一次都扣钱。
+2026-06-04 14:35:16,374 INFO [agent.preference_parser] Parsed preference: type=min_days_in_region, penalty=6000, content=我在广州市增城区有家老档口（23.15，113.67）要照应，自然月里装货或卸货在增城的货，起码得接
+2026-06-04 14:35:16,374 INFO [agent.preference_parser] Parsed preference: type=max_pickup_km, penalty=120, content=看好了单子再动身，接单后赶去装货那一程，空驶超过五十五公里我就不想接，超一次扣120。
+2026-06-04 14:35:16,374 INFO [agent.preference_parser] Parsed preference: type=off_days, penalty=10000, content=这月得进修理厂做保养，起码留两个整天停驶检修，那天别给我排活。
+2026-06-04 14:35:16,374 INFO [agent.dispatcher] preferences parsed driver=D002 rules=[('rest_window', {'start_hour': 0, 'end_hour': 6}), ('forbidden_category', {'categories': ['蔬菜', '青菜', '叶菜', '生鲜蔬菜'], 'keyword': '蔬菜'}), ('min_days_in_region', {'region': '增城', 'min_days': 4}), ('max_pickup_km', {'max_km': 55.0}), ('off_days', {'min_days': 2})]
+2026-06-04 14:35:16,374 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=60 returned=60
+2026-06-04 14:35:16,374 INFO [agent.dispatcher] [REST] mandatory rest 326min day=12
+2026-06-04 14:35:16,374 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 326}
+2026-06-04 14:35:16,374 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":326} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,374 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=61 returned=61
+2026-06-04 14:35:16,390 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,390 INFO [agent.dispatcher] rule-based decision cargo_id=377318 score=0.2434 net_profit=236.1
+2026-06-04 14:35:16,390 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '377318'}
+2026-06-04 14:35:16,390 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"377318"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,390 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=62 returned=62
+2026-06-04 14:35:16,390 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,406 INFO [agent.opportunity] [OPPORTUNITY] wait recommended: p_better=0.26 expected_gain=74yuan wait_cost=68yuan net=7 percentile=0.74 density=121
+2026-06-04 14:35:16,406 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 45}
+2026-06-04 14:35:16,406 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":45} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,406 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=63 returned=63
+2026-06-04 14:35:16,406 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,406 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.55)
+2026-06-04 14:35:16,406 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,406 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,406 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=64 returned=64
+2026-06-04 14:35:16,406 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,406 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.54)
+2026-06-04 14:35:16,406 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,406 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,406 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=65 returned=65
+2026-06-04 14:35:16,422 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,422 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.54)
+2026-06-04 14:35:16,422 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,422 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,422 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=66 returned=66
+2026-06-04 14:35:16,422 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,422 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.54)
+2026-06-04 14:35:16,422 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,422 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,422 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=67 returned=67
+2026-06-04 14:35:16,422 INFO [agent.dispatcher] [REST] mandatory rest 300min day=13
+2026-06-04 14:35:16,422 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 300}
+2026-06-04 14:35:16,422 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":300} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,422 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=68 returned=68
+2026-06-04 14:35:16,422 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,422 INFO [agent.dispatcher] rule-based decision cargo_id=384547 score=0.2590 net_profit=321.7
+2026-06-04 14:35:16,422 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '384547'}
+2026-06-04 14:35:16,422 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"384547"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,438 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=69 returned=69
+2026-06-04 14:35:16,438 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:16,438 INFO [agent.dispatcher] rule-based decision cargo_id=386592 score=0.2171 net_profit=461.8
+2026-06-04 14:35:16,438 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '386592'}
+2026-06-04 14:35:16,438 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"386592"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,438 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=70 returned=70
+2026-06-04 14:35:16,454 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:16,454 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.25)
+2026-06-04 14:35:16,454 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,454 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,454 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=71 returned=71
+2026-06-04 14:35:16,454 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:16,469 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.25)
+2026-06-04 14:35:16,469 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,469 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,469 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=72 returned=72
+2026-06-04 14:35:16,469 INFO [agent.dispatcher] [REST] mandatory rest 327min day=14
+2026-06-04 14:35:16,469 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 327}
+2026-06-04 14:35:16,469 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":327} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,469 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=73 returned=73
+2026-06-04 14:35:16,469 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:16,485 INFO [agent.dispatcher] rule-based decision cargo_id=390209 score=0.2826 net_profit=581.8
+2026-06-04 14:35:16,485 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '390209'}
+2026-06-04 14:35:16,485 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"390209"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,485 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=74 returned=74
+2026-06-04 14:35:16,485 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,485 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.58)
+2026-06-04 14:35:16,485 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,485 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,501 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=75 returned=75
+2026-06-04 14:35:16,501 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,501 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.58)
+2026-06-04 14:35:16,501 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,501 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,501 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=76 returned=76
+2026-06-04 14:35:16,501 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,501 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.58)
+2026-06-04 14:35:16,501 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,501 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,501 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=77 returned=77
+2026-06-04 14:35:16,501 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,501 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.58)
+2026-06-04 14:35:16,501 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,501 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,501 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=78 returned=78
+2026-06-04 14:35:16,501 INFO [agent.dispatcher] [REST] mandatory rest 324min day=15
+2026-06-04 14:35:16,501 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 324}
+2026-06-04 14:35:16,501 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":324} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,501 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=79 returned=79
+2026-06-04 14:35:16,517 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,517 INFO [agent.dispatcher] rule-based decision cargo_id=394861 score=0.2504 net_profit=327.1
+2026-06-04 14:35:16,517 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '394861'}
+2026-06-04 14:35:16,517 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"394861"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,517 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=80 returned=80
+2026-06-04 14:35:16,517 INFO [agent.dispatcher] [REST] mandatory rest 327min day=16
+2026-06-04 14:35:16,517 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 327}
+2026-06-04 14:35:16,517 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":327} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,517 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=81 returned=81
+2026-06-04 14:35:16,532 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:16,532 INFO [agent.dispatcher] rule-based decision cargo_id=101357 score=0.2263 net_profit=94.5
+2026-06-04 14:35:16,532 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '101357'}
+2026-06-04 14:35:16,532 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"101357"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,542 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=82 returned=82
+2026-06-04 14:35:16,548 INFO [agent.dispatcher] [OFF_DAY] scheduling rest: got 1/2, interval=15, days_since_off=16, remaining=14
+2026-06-04 14:35:16,548 INFO [agent.dispatcher] [REST] mandatory rest 167min day=16
+2026-06-04 14:35:16,548 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 167}
+2026-06-04 14:35:16,548 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":167} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,548 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=83 returned=83
+2026-06-04 14:35:16,548 INFO [agent.dispatcher] [GAMMA] off_days gamma=5.4 forcing full rest day 17 (1440min)
+2026-06-04 14:35:16,548 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 1440}
+2026-06-04 14:35:16,548 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":1440} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,551 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=84 returned=84
+2026-06-04 14:35:16,551 INFO [agent.dispatcher] [REST] mandatory rest 360min day=18
+2026-06-04 14:35:16,551 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 360}
+2026-06-04 14:35:16,551 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":360} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,551 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=85 returned=85
+2026-06-04 14:35:16,559 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,565 INFO [agent.dispatcher] rule-based decision cargo_id=115053 score=0.2414 net_profit=249.9
+2026-06-04 14:35:16,565 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '115053'}
+2026-06-04 14:35:16,565 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"115053"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,569 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=86 returned=86
+2026-06-04 14:35:16,569 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:16,569 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.51)
+2026-06-04 14:35:16,581 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,581 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,581 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=87 returned=87
+2026-06-04 14:35:16,581 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:16,581 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.51)
+2026-06-04 14:35:16,581 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,581 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,581 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=88 returned=88
+2026-06-04 14:35:16,581 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:16,581 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.51)
+2026-06-04 14:35:16,581 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,581 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,581 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=89 returned=89
+2026-06-04 14:35:16,596 INFO [agent.dispatcher] [REST] mandatory rest 356min day=19
+2026-06-04 14:35:16,596 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 356}
+2026-06-04 14:35:16,596 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":356} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,596 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=90 returned=90
+2026-06-04 14:35:16,596 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:16,596 INFO [agent.dispatcher] rule-based decision cargo_id=421296 score=0.2625 net_profit=527.5
+2026-06-04 14:35:16,596 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '421296'}
+2026-06-04 14:35:16,596 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"421296"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,596 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=91 returned=91
+2026-06-04 14:35:16,613 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:16,613 INFO [agent.opportunity] [OPPORTUNITY] reposition recommended: reposition_gain=2881yuan > cost=229yuan*1.3 from_heat=0.35 to_heat=0.48 dist=92km
+2026-06-04 14:35:16,613 INFO [agent.decision_service] decision driver=D002 action=reposition params={'latitude': 23.95, 'longitude': 113.06}
+2026-06-04 14:35:16,613 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=reposition params={"latitude":23.95,"longitude":113.06} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,613 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=92 returned=92
+2026-06-04 14:35:16,628 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:16,632 INFO [agent.opportunity] [OPPORTUNITY] wait recommended: p_better=0.92 expected_gain=1399yuan wait_cost=128yuan net=1272 percentile=0.08 density=3
+2026-06-04 14:35:16,632 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 85}
+2026-06-04 14:35:16,632 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":85} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,632 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=93 returned=93
+2026-06-04 14:35:16,632 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:16,644 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.47)
+2026-06-04 14:35:16,644 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,644 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,644 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=94 returned=94
+2026-06-04 14:35:16,644 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:16,644 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.49)
+2026-06-04 14:35:16,644 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,644 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,644 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=95 returned=95
+2026-06-04 14:35:16,660 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:16,669 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.50)
+2026-06-04 14:35:16,669 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,669 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,669 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=96 returned=96
+2026-06-04 14:35:16,669 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:16,680 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.51)
+2026-06-04 14:35:16,680 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,680 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,682 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=97 returned=97
+2026-06-04 14:35:16,682 INFO [agent.dispatcher] [REST] mandatory rest 312min day=20
+2026-06-04 14:35:16,682 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 312}
+2026-06-04 14:35:16,682 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":312} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,682 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=98 returned=98
+2026-06-04 14:35:16,682 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:16,699 INFO [agent.dispatcher] rule-based decision cargo_id=126210 score=0.2491 net_profit=481.7
+2026-06-04 14:35:16,699 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '126210'}
+2026-06-04 14:35:16,699 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"126210"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,708 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=99 returned=99
+2026-06-04 14:35:16,708 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:16,708 INFO [agent.dispatcher] rule-based decision cargo_id=134392 score=0.2399 net_profit=410.2
+2026-06-04 14:35:16,708 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '134392'}
+2026-06-04 14:35:16,708 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"134392"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,708 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=100 returned=100
+2026-06-04 14:35:16,708 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,723 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.52)
+2026-06-04 14:35:16,723 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,723 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,723 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=101 returned=101
+2026-06-04 14:35:16,723 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,723 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.52)
+2026-06-04 14:35:16,723 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,723 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,723 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=102 returned=102
+2026-06-04 14:35:16,723 INFO [agent.dispatcher] [REST] mandatory rest 302min day=21
+2026-06-04 14:35:16,723 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 302}
+2026-06-04 14:35:16,723 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":302} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,723 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=103 returned=103
+2026-06-04 14:35:16,723 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,723 INFO [agent.dispatcher] rule-based decision cargo_id=133129 score=0.2770 net_profit=526.8
+2026-06-04 14:35:16,723 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '133129'}
+2026-06-04 14:35:16,723 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"133129"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,739 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=104 returned=104
+2026-06-04 14:35:16,739 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,739 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.57)
+2026-06-04 14:35:16,739 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,739 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,739 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=105 returned=105
+2026-06-04 14:35:16,739 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,739 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.57)
+2026-06-04 14:35:16,739 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,739 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,739 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=106 returned=106
+2026-06-04 14:35:16,739 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,758 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.57)
+2026-06-04 14:35:16,758 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,758 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,758 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=107 returned=107
+2026-06-04 14:35:16,760 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,764 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.57)
+2026-06-04 14:35:16,764 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,764 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,764 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=108 returned=108
+2026-06-04 14:35:16,764 INFO [agent.dispatcher] [REST] mandatory rest 340min day=22
+2026-06-04 14:35:16,764 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 340}
+2026-06-04 14:35:16,764 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":340} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,764 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=109 returned=109
+2026-06-04 14:35:16,764 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,771 INFO [agent.dispatcher] rule-based decision cargo_id=147479 score=0.2610 net_profit=447.8
+2026-06-04 14:35:16,771 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '147479'}
+2026-06-04 14:35:16,771 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"147479"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,771 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=110 returned=110
+2026-06-04 14:35:16,771 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:16,771 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.49)
+2026-06-04 14:35:16,771 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,771 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,771 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=111 returned=111
+2026-06-04 14:35:16,787 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:16,787 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.49)
+2026-06-04 14:35:16,787 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,787 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,787 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=112 returned=112
+2026-06-04 14:35:16,787 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:16,787 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.49)
+2026-06-04 14:35:16,787 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,787 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,787 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=113 returned=113
+2026-06-04 14:35:16,787 INFO [agent.dispatcher] [REST] mandatory rest 324min day=23
+2026-06-04 14:35:16,787 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 324}
+2026-06-04 14:35:16,787 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":324} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,787 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=114 returned=114
+2026-06-04 14:35:16,787 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:16,803 INFO [agent.dispatcher] clear winner cargo_id=290580 score=0.3446 net_profit=1322.2 profit_per_hour=97.2
+2026-06-04 14:35:16,803 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '290580'}
+2026-06-04 14:35:16,803 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"290580"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,816 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=115 returned=115
+2026-06-04 14:35:16,816 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:16,820 INFO [agent.opportunity] [OPPORTUNITY] wait recommended: p_better=0.21 expected_gain=282yuan wait_cost=63yuan net=219 percentile=0.79 density=34
+2026-06-04 14:35:16,820 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 42}
+2026-06-04 14:35:16,820 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":42} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,820 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=116 returned=116
+2026-06-04 14:35:16,824 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:16,824 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.46)
+2026-06-04 14:35:16,824 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,824 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,824 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=117 returned=117
+2026-06-04 14:35:16,824 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:16,835 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.46)
+2026-06-04 14:35:16,835 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,835 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,835 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=118 returned=118
+2026-06-04 14:35:16,835 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:16,835 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.46)
+2026-06-04 14:35:16,835 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,835 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,835 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=119 returned=119
+2026-06-04 14:35:16,835 INFO [agent.dispatcher] [REST] mandatory rest 352min day=24
+2026-06-04 14:35:16,835 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 352}
+2026-06-04 14:35:16,835 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":352} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,835 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=120 returned=120
+2026-06-04 14:35:16,835 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:16,851 INFO [agent.dispatcher] rule-based decision cargo_id=452981 score=0.2882 net_profit=673.5
+2026-06-04 14:35:16,851 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '452981'}
+2026-06-04 14:35:16,851 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"452981"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,851 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=121 returned=121
+2026-06-04 14:35:16,851 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,870 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.51)
+2026-06-04 14:35:16,870 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,870 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,870 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=122 returned=122
+2026-06-04 14:35:16,870 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,870 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.51)
+2026-06-04 14:35:16,870 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,870 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,870 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=123 returned=123
+2026-06-04 14:35:16,870 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,870 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.51)
+2026-06-04 14:35:16,870 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,870 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,870 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=124 returned=124
+2026-06-04 14:35:16,870 INFO [agent.dispatcher] [REST] mandatory rest 342min day=25
+2026-06-04 14:35:16,870 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 342}
+2026-06-04 14:35:16,870 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":342} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,870 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=125 returned=125
+2026-06-04 14:35:16,883 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,883 INFO [agent.dispatcher] rule-based decision cargo_id=294568 score=0.2352 net_profit=81.0
+2026-06-04 14:35:16,883 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '294568'}
+2026-06-04 14:35:16,883 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"294568"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,899 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=126 returned=126
+2026-06-04 14:35:16,899 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,899 INFO [agent.dispatcher] rule-based decision cargo_id=296773 score=0.2696 net_profit=618.1
+2026-06-04 14:35:16,899 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '296773'}
+2026-06-04 14:35:16,899 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"296773"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,899 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=127 returned=127
+2026-06-04 14:35:16,918 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,918 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.51)
+2026-06-04 14:35:16,918 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,918 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,918 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=128 returned=128
+2026-06-04 14:35:16,918 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,918 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.51)
+2026-06-04 14:35:16,918 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,918 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,918 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=129 returned=129
+2026-06-04 14:35:16,932 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,932 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.51)
+2026-06-04 14:35:16,932 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,932 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,932 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=130 returned=130
+2026-06-04 14:35:16,932 INFO [agent.dispatcher] [REST] mandatory rest 331min day=27
+2026-06-04 14:35:16,932 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 331}
+2026-06-04 14:35:16,932 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":331} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,932 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=131 returned=131
+2026-06-04 14:35:16,932 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,932 INFO [agent.dispatcher] rule-based decision cargo_id=184226 score=0.2075 net_profit=82.5
+2026-06-04 14:35:16,932 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '184226'}
+2026-06-04 14:35:16,932 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"184226"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,947 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=132 returned=132
+2026-06-04 14:35:16,947 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:16,959 INFO [agent.dispatcher] rule-based decision cargo_id=190913 score=0.2268 net_profit=245.6
+2026-06-04 14:35:16,959 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '190913'}
+2026-06-04 14:35:16,959 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"190913"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,965 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=133 returned=133
+2026-06-04 14:35:16,967 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:16,972 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.52)
+2026-06-04 14:35:16,972 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,972 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,972 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=134 returned=134
+2026-06-04 14:35:16,974 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:16,979 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.52)
+2026-06-04 14:35:16,979 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:16,979 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:16,979 INFO [agent.preference_parser] Parsed preference: type=rest_window, penalty=1800, content=零点以后到早上六点这段我得睡觉，车得停着熄火，雷打不动。
+2026-06-04 14:35:16,979 INFO [agent.preference_parser] Parsed preference: type=forbidden_category, penalty=3400, content=蔬菜几分钱一斤的路一颠就烂，赔不起损耗，凡是蔬菜货源我一律推掉，每接一次都扣钱。
+2026-06-04 14:35:16,979 INFO [agent.preference_parser] Parsed preference: type=min_days_in_region, penalty=6000, content=我在广州市增城区有家老档口（23.15，113.67）要照应，自然月里装货或卸货在增城的货，起码得接
+2026-06-04 14:35:16,979 INFO [agent.preference_parser] Parsed preference: type=max_pickup_km, penalty=120, content=看好了单子再动身，接单后赶去装货那一程，空驶超过五十五公里我就不想接，超一次扣120。
+2026-06-04 14:35:16,979 INFO [agent.preference_parser] Parsed preference: type=off_days, penalty=10000, content=这月得进修理厂做保养，起码留两个整天停驶检修，那天别给我排活。
+2026-06-04 14:35:39,803 INFO [bench.embedded_agent.environment] model_chat_completion ok
+2026-06-04 14:35:39,803 INFO [agent.preference_parser] LLM parsed preference: unknown
+2026-06-04 14:35:39,803 INFO [agent.preference_parser] Parsed preference: type=unknown, penalty=5000, content=三月三十一号舅公做寿，上午得先过增城区档口捎上寿礼，中午十二点前赶到四会县城（23.32，112.8
+2026-06-04 14:35:39,803 INFO [agent.dispatcher] preferences parsed driver=D002 rules=[('rest_window', {'start_hour': 0, 'end_hour': 6}), ('forbidden_category', {'categories': ['蔬菜', '青菜', '叶菜', '生鲜蔬菜'], 'keyword': '蔬菜'}), ('min_days_in_region', {'region': '增城', 'min_days': 4}), ('max_pickup_km', {'max_km': 55.0}), ('off_days', {'min_days': 2}), ('unknown', {'content': '三月三十一号舅公做寿，上午得先过增城区档口捎上寿礼，中午十二点前赶到四会县城（23.32，112.83）赴宴到下午两点。'})]
+2026-06-04 14:35:39,803 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=135 returned=135
+2026-06-04 14:35:39,805 INFO [agent.dispatcher] [REST] mandatory rest 310min day=28
+2026-06-04 14:35:39,805 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 310}
+2026-06-04 14:35:39,805 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":310} tokens prompt=272 completion=2511 reasoning=2445 total=2783
+2026-06-04 14:35:39,805 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=136 returned=136
+2026-06-04 14:35:39,805 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=100 items=100 scan_cost_min=10
+2026-06-04 14:35:39,813 INFO [agent.dispatcher] rule-based decision cargo_id=479058 score=0.2679 net_profit=730.9
+2026-06-04 14:35:39,813 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '479058'}
+2026-06-04 14:35:39,813 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"479058"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:39,813 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=137 returned=137
+2026-06-04 14:35:39,813 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:39,831 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.35)
+2026-06-04 14:35:39,831 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:39,831 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:39,831 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=138 returned=138
+2026-06-04 14:35:39,831 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:39,845 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.35)
+2026-06-04 14:35:39,845 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:39,845 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:39,845 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=139 returned=139
+2026-06-04 14:35:39,845 INFO [agent.dispatcher] [REST] mandatory rest 360min day=29
+2026-06-04 14:35:39,845 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 360}
+2026-06-04 14:35:39,845 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":360} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:39,845 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=140 returned=140
+2026-06-04 14:35:39,845 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=200 items=200 scan_cost_min=20
+2026-06-04 14:35:39,860 INFO [agent.dispatcher] rule-based decision cargo_id=203811 score=0.2554 net_profit=484.0
+2026-06-04 14:35:39,860 INFO [agent.decision_service] decision driver=D002 action=take_order params={'cargo_id': '203811'}
+2026-06-04 14:35:39,860 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=take_order params={"cargo_id":"203811"} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:39,860 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=141 returned=141
+2026-06-04 14:35:39,860 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:39,860 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.50)
+2026-06-04 14:35:39,860 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:39,860 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:39,860 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=142 returned=142
+2026-06-04 14:35:39,877 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:39,877 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.50)
+2026-06-04 14:35:39,877 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:39,877 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:39,877 INFO [bench.embedded_agent.environment] query_decision_history driver_id=D002 step=-1 total=143 returned=143
+2026-06-04 14:35:39,877 INFO [bench.embedded_agent.environment] query_cargo ok driver_id=D002 k=50 items=50 scan_cost_min=5
+2026-06-04 14:35:39,877 INFO [agent.dispatcher] no cargo → short wait 60min (current_heat=0.50)
+2026-06-04 14:35:39,877 INFO [agent.decision_service] decision driver=D002 action=wait params={'duration_minutes': 60}
+2026-06-04 14:35:39,877 INFO [bench.embedded_agent.engine] decision driver_id=D002 action=wait params={"duration_minutes":60} tokens prompt=0 completion=0 reasoning=0 total=0
+2026-06-04 14:35:39,877 INFO [bench.evaluation_runner] simulation finished results_dir=F:\天池大赛\demo_docs_release_20260529\demo\results summary={'completed_steps': 211, 'remaining_cargo_count': 16894, 'simulation_progress_minutes': 43262, 'simulation_wall_time': '2026-03-31 01:02:00', 'simulate_time_seconds': 46.95, 'driver_completed_steps': {'D001': 67, 'D002': 144}, 'driver_result_files': {'D001': 'F:\\天池大赛\\demo_docs_release_20260529\\demo\\results\\actions_202603_D001_20260604_143452.jsonl', 'D002': 'F:\\天池大赛\\demo_docs_release_20260529\\demo\\results\\actions_202603_D002_20260604_143452.jsonl'}, 'driver_simulation_failures': {}}
