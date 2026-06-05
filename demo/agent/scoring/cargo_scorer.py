@@ -1,5 +1,7 @@
 """货源多维度综合评分引擎。
-v2: 可配置的 distance_score 权重；接受外部注入的未来价值分量。"""
+V3 Swarm Intelligence: 挂载时空流弹性供需分配机制——废除被动对数降权，引入
+supply_demand_ratio 驱动的指数惩罚（运力过剩）与 Pioneer Premium 战略引流溢价
+（运力空缺），实现百人并发的自发最优进化。"""
 
 from __future__ import annotations
 
@@ -106,12 +108,26 @@ class CargoScorer:
 
         combined_heat_score = 0.4 * start_heat_score + 0.6 * dest_heat_score
 
-        # ★ V2 供需水位线：容量/运力比决定热度溢价或折价
+        # ── V3 时空流宏观弹性画布：动态供需弹性分配 ─────────────────
+        # 废除 V2 的被动 min(1.0, ratio) 对数降权，升级为双向弹性机制：
+        #   ratio < 1.0（运力过剩/僧多粥少）→ 指数级降权惩罚
+        #   ratio >= 1.0（货源紧缺/运力空缺）→ 保持原热度 + Pioneer Premium
         arrival_hour = int((sim_progress_minutes + total_minutes) // 60) % 24
         shadow_count = area_memory.get_shadow_count(dest_lat, dest_lng, arrival_hour) if area_memory else 0.0
-        capacity = area_memory.get_grid_capacity(dest_lat, dest_lng, arrival_hour) if area_memory else 2.0
+        capacity = area_memory.get_grid_capacity(dest_lat, dest_lng, arrival_hour) if area_memory else 3.0
         supply_demand_ratio = capacity / (shadow_count + 1.0)
-        combined_heat_score *= min(1.0, supply_demand_ratio)
+
+        pioneer_premium = 0.0
+        if supply_demand_ratio < 1.0:
+            # V3 运力过剩：指数级惩罚 ratio^2 — 当 2 倍过载时 heat 折至 25%
+            elasticity_mult = supply_demand_ratio ** 2.0
+            combined_heat_score *= elasticity_mult
+            dest_heat_score = combined_heat_score
+        else:
+            # V3 运力空缺：保持原热度 + Pioneer Premium 战略引流溢价
+            pioneer_premium = 0.15
+            combined_heat_score = min(1.0, combined_heat_score + pioneer_premium)
+            dest_heat_score = combined_heat_score
 
         # ★ 经济账公式：有效罚分 = 原始罚分 × γ（动态膨胀系数）
         effective_penalty = preference_penalty * gamma
@@ -166,6 +182,10 @@ class CargoScorer:
                 "load_wait_minutes": round(load_wait_minutes, 1),
                 "distance_score": round(distance_score, 4),
                 "future_value": round(future_value, 1),
+                # V3 供需弹性画布观测
+                "supply_demand_ratio": round(supply_demand_ratio, 4),
+                "shadow_count": round(shadow_count, 1),
+                "pioneer_premium": round(pioneer_premium, 4),
             },
         )
 

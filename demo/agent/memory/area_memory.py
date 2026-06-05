@@ -1,5 +1,7 @@
-"""区域热度记忆：按地理网格统计货源密度与平均收益，支撑长期规划与迁移策略。
-v3: 修复 score_percentile 量纲错误，新增加权历史分数估算。"""
+"""区域热度记忆：双向时空流供需画布。
+V3 Swarm Intelligence: 每个网格维护双向看板——shadow_fleet（司机占坑计数）与
+expected_cargo_capacity（大盘历史货源刷新量），为 CargoScorer 的弹性供需分配
+与 Pioneer Premium 战略引流机制提供数据底座。"""
 
 from __future__ import annotations
 
@@ -7,6 +9,10 @@ from collections import defaultdict
 from typing import Any
 
 from agent.utils.geo_utils import grid_key, haversine_km
+
+
+# V3 通用网格基准容量：每个时段的期望货源刷新量默认值
+_V3_BASELINE_CAPACITY = 3.0
 
 
 def _new_grid() -> dict[str, Any]:
@@ -20,7 +26,7 @@ def _new_grid() -> dict[str, Any]:
         "pickup_distances": [],
         "score_samples": [],
         "shadow_fleet": [0.0 for _ in range(24)],
-        "expected_cargo_capacity": [max(2.0, 5.0) for _ in range(24)],
+        "expected_cargo_capacity": [_V3_BASELINE_CAPACITY for _ in range(24)],
     }
 
 
@@ -90,8 +96,10 @@ class AreaMemory:
             g["gen"] = self._generation
             g["hour_buckets"][hour]["count"] += 1.0
             g["hour_buckets"][hour]["total_price"] += price
-            # 弹性容量基准：历史同时段货源密度的滚动平均
-            g["expected_cargo_capacity"][hour] = max(2.0, g["hour_buckets"][hour]["count"])
+            # V3 弹性容量基准：历史同时段货源密度的 EMA 滚动估计，地板为基准值
+            current_cap = g["expected_cargo_capacity"][hour]
+            observed = g["hour_buckets"][hour]["count"]
+            g["expected_cargo_capacity"][hour] = max(_V3_BASELINE_CAPACITY, 0.7 * current_cap + 0.3 * observed)
             g["pickup_distances"].append(pickup_km)
             if len(g["pickup_distances"]) > 50:
                 g["pickup_distances"] = g["pickup_distances"][-50:]
@@ -264,21 +272,15 @@ class AreaMemory:
             "generation": self._generation,
         }
 
-    # ── 影子运力意图 ──────────────────────────────────────────────
-
-    def register_intent(self, lat: float, lng: float, hour: int) -> None:
-        """宣告运力占坑意图：该网格该时段影子运力 +1。"""
-        key = grid_key(lat, lng, self._resolution)
-        g = self._grids[key]
-        g["shadow_fleet"][hour % 24] += 1.0
+    # ── V3 双向供需画布 ────────────────────────────────────────────
 
     def get_grid_capacity(self, lat: float, lng: float, hour: int) -> float:
-        """返回该网格该时段的弹性货源容量基准。"""
+        """返回该网格该时段的弹性货源容量基准（V3: 默认地板 3.0）。"""
         key = grid_key(lat, lng, self._resolution)
         g = self._grids.get(key)
         if g is None:
-            return 2.0
-        return g["expected_cargo_capacity"][hour % 24]
+            return _V3_BASELINE_CAPACITY
+        return max(_V3_BASELINE_CAPACITY, g["expected_cargo_capacity"][hour % 24])
 
     def get_shadow_count(self, lat: float, lng: float, hour: int) -> float:
         """查询该网格该时段的影子运力计数。"""
@@ -287,3 +289,33 @@ class AreaMemory:
         if g is None:
             return 0.0
         return g["shadow_fleet"][hour % 24]
+
+    def get_supply_demand_ratio(self, lat: float, lng: float, hour: int) -> float:
+        """V3 双向供需比：expected_cargo_capacity / (shadow_count + 1)。
+        ratio >= 1.0 → 运力空缺/货源紧缺，可触发 Pioneer Premium。
+        ratio < 1.0  → 运力过剩/僧多粥少，需降权惩罚。
+        """
+        capacity = self.get_grid_capacity(lat, lng, hour)
+        shadow = self.get_shadow_count(lat, lng, hour)
+        return capacity / (shadow + 1.0)
+
+    def get_canvas_snapshot(
+        self, lat: float, lng: float, hour: int
+    ) -> dict[str, float]:
+        """V3 快照：返回网格的供需全貌，供外部评分器消费。"""
+        ratio = self.get_supply_demand_ratio(lat, lng, hour)
+        return {
+            "capacity": self.get_grid_capacity(lat, lng, hour),
+            "shadow_count": self.get_shadow_count(lat, lng, hour),
+            "supply_demand_ratio": round(ratio, 4),
+            "is_oversupplied": ratio < 1.0,
+            "is_undersupplied": ratio >= 1.5,
+        }
+
+    # ── 影子运力意图 ──────────────────────────────────────────────
+
+    def register_intent(self, lat: float, lng: float, hour: int) -> None:
+        """宣告运力占坑意图：该网格该时段影子运力 +1。"""
+        key = grid_key(lat, lng, self._resolution)
+        g = self._grids[key]
+        g["shadow_fleet"][hour % 24] += 1.0
